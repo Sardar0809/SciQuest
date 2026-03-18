@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account — SciQuest</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+<style>
+body{background:linear-gradient(160deg,var(--forest) 0%,var(--leaf) 55%,var(--moss) 100%);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem;}
+.auth-wrap{width:100%;max-width:580px;margin:0 auto;}
+.auth-card{background:white;border-radius:var(--r-xl);padding:2.5rem;box-shadow:var(--sh-xl);}
+.auth-logo{text-align:center;margin-bottom:2rem;}
+.auth-logo .al-name{font-family:var(--font-display);font-size:1.8rem;color:var(--leaf);}
+.auth-logo .al-name span{color:var(--fern);font-style:italic;}
+.step-bar{display:flex;gap:0;margin-bottom:2rem;}
+.sb-item{flex:1;height:5px;border-radius:3px;background:var(--bd);margin:0 2px;transition:background .4s;}
+.sb-item.done{background:var(--fern);}
+.sb-item.active{background:var(--leaf);}
+.step-labels{display:flex;justify-content:space-between;margin-top:6px;margin-bottom:1.5rem;}
+.sl{font-size:11px;color:var(--silver);text-align:center;flex:1;}
+.sl.act{color:var(--leaf);font-weight:700;}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem;}
+.role-card{border:2px solid var(--bd);border-radius:var(--r-md);padding:1.2rem;cursor:pointer;transition:all .2s;text-align:center;}
+.role-card:hover{border-color:var(--fern);}
+.role-card.sel{border-color:var(--leaf);background:var(--pale);}
+.role-card .rc-icon{font-size:1.8rem;margin-bottom:.4rem;}
+.role-card h4{font-size:14px;font-weight:700;color:var(--ink);}
+.role-card p{font-size:12px;color:var(--smoke);margin-top:3px;line-height:1.4;}
+.role-both{grid-column:1/-1;}
+.strength-bar{height:5px;background:var(--bd);border-radius:3px;margin-top:6px;overflow:hidden;}
+.strength-fill{height:100%;border-radius:3px;transition:width .4s,background .4s;}
+.skill-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:.5rem;}
+.skill-chip{background:var(--pale);border:1px solid var(--mist);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:var(--moss);display:flex;align-items:center;gap:4px;}
+.skill-chip button{background:none;border:none;cursor:pointer;color:var(--red);font-size:11px;padding:0;line-height:1;}
+.skill-add{display:flex;gap:6px;margin-top:.5rem;}
+.skill-add input{flex:1;padding:7px 12px;border:1.5px solid var(--bd-md);border-radius:var(--r-sm);font-size:13px;font-family:var(--font-body);outline:none;}
+.skill-add input:focus{border-color:var(--fern);}
+.skill-add button{background:var(--leaf);color:white;border:none;padding:7px 14px;border-radius:var(--r-sm);font-size:13px;cursor:pointer;}
+.photo-zone{border:2px dashed var(--bd-md);border-radius:50%;width:90px;height:90px;margin:0 auto .8rem;cursor:pointer;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--smoke);transition:all .2s;flex-shrink:0;background:var(--fog);}
+.photo-zone:hover{border-color:var(--fern);background:var(--pale);}
+.photo-zone img{width:100%;height:100%;object-fit:cover;}
+.show-pw{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--smoke);font-size:.9rem;}
+.pw-wrap{position:relative;}
+.pw-wrap .fi{padding-right:40px;}
+.reg-link{text-align:center;margin-top:1.2rem;font-size:14px;color:var(--smoke);}
+.reg-link a{color:var(--moss);font-weight:700;}
+.back-home{display:block;text-align:center;margin-top:1.5rem;font-size:13px;color:rgba(255,255,255,.6);}
+.back-home:hover{color:var(--sage);}
+</style>
+</head>
+<body>
+<div id="particles"></div>
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="al-name">Sci<span>Quest</span></div>
+      <p>Create your free academic profile</p>
+    </div>
+
+    <div class="step-bar">
+      <div class="sb-item active" id="sb1"></div>
+      <div class="sb-item" id="sb2"></div>
+      <div class="sb-item" id="sb3"></div>
+    </div>
+    <div class="step-labels">
+      <div class="sl act" id="sl1">Your Role</div>
+      <div class="sl" id="sl2">Profile Info</div>
+      <div class="sl" id="sl3">Skills &amp; Finish</div>
+    </div>
+
+    <!-- STEP 1: ROLE -->
+    <div id="regStep1">
+      <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--leaf);margin-bottom:.3rem;">How will you use SciQuest?</h3>
+      <p style="font-size:13px;color:var(--smoke);margin-bottom:1.3rem;">You can switch between roles anytime from your profile.</p>
+      <div class="role-grid">
+        <div class="role-card" id="role-poster" onclick="selectRole('poster')">
+          <div class="rc-icon">📋</div>
+          <h4>Task Poster</h4>
+          <p>I need academic help — thesis, synopsis, surveys, presentations</p>
+        </div>
+        <div class="role-card" id="role-helper" onclick="selectRole('helper')">
+          <div class="rc-icon">🔬</div>
+          <h4>Task Helper</h4>
+          <p>I help fellow students and earn from my expertise</p>
+        </div>
+        <div class="role-card role-both sel" id="role-both" onclick="selectRole('both')">
+          <div class="rc-icon">🤝</div>
+          <h4>Both — Post &amp; Help</h4>
+          <p>Get help when needed. Help others and earn. Most popular choice among science students.</p>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-w" style="padding:13px;" onclick="regNext(2)">Continue →</button>
+      <div class="reg-link">Already have an account? <a href="login.html">Sign in</a></div>
+    </div>
+
+    <!-- STEP 2: PROFILE INFO -->
+    <div id="regStep2" style="display:none;">
+      <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--leaf);margin-bottom:1.3rem;">Your Profile Information</h3>
+
+      <label class="photo-zone" for="photoInput" id="photoZone" title="Upload profile photo">
+        <input type="file" id="photoInput" accept="image/*" style="display:none;" onchange="previewPhoto(this)">
+        📷
+      </label>
+      <p style="text-align:center;font-size:12px;color:var(--smoke);margin-bottom:1.2rem;">Upload profile photo (optional)</p>
+
+      <div class="grid-2">
+        <div class="fg">
+          <label class="required">First Name</label>
+          <input type="text" class="fi" id="regFname" placeholder="Enter your first name" autocomplete="given-name">
+        </div>
+        <div class="fg">
+          <label class="required">Last Name</label>
+          <input type="text" class="fi" id="regLname" placeholder="Enter your last name" autocomplete="family-name">
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="required">Email Address</label>
+        <input type="email" class="fi" id="regEmail" placeholder="Your university or personal email" autocomplete="email">
+        <div class="hint">Use your university email for automatic verification</div>
+      </div>
+
+      <div class="fg">
+        <label class="required">Phone / WhatsApp Number</label>
+        <input type="tel" class="fi" id="regPhone" placeholder="Your WhatsApp number (03XXXXXXXXX)" oninput="validateRegPhone(this)">
+        <div class="hint" id="phoneHint">Used to coordinate task delivery — only shared with your task partner</div>
+      </div>
+
+      <div class="fg">
+        <label class="required">University</label>
+        <select class="fi" id="regUni">
+          <option value="">Select your university</option>
+        </select>
+      </div>
+
+      <div class="grid-2">
+        <div class="fg">
+          <label class="required">Degree Program</label>
+          <select class="fi" id="regDegree">
+            <option value="">Select degree</option>
+            <option>BS / BSc</option><option>MSc</option><option>MPhil</option>
+            <option>PhD</option><option>MBBS/BDS</option><option>DVM</option><option>Other</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="required">Field of Study</label>
+          <select class="fi" id="regField">
+            <option value="">Select your field</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Short Bio <span style="font-size:12px;color:var(--smoke);font-weight:400;">(optional)</span></label>
+        <textarea class="fi" id="regBio" rows="3" placeholder="Tell others about your research interests, what you can help with, and your experience..."></textarea>
+      </div>
+
+      <div class="fg">
+        <label class="required">Password</label>
+        <div class="pw-wrap">
+          <input type="password" class="fi" id="regPw" placeholder="Create a strong password" oninput="checkPwStrength(this.value)">
+          <button type="button" class="show-pw" onclick="toggleRegPw()">👁</button>
+        </div>
+        <div class="strength-bar"><div class="strength-fill" id="strengthFill" style="width:0%"></div></div>
+        <div class="hint" id="strengthLabel">Enter at least 8 characters</div>
+      </div>
+
+      <div class="fg">
+        <label class="required">Confirm Password</label>
+        <input type="password" class="fi" id="regPwConf" placeholder="Re-enter your password">
+      </div>
+
+      <div style="display:flex;justify-content:space-between;gap:10px;margin-top:1.5rem;">
+        <button class="btn btn-secondary" onclick="regNext(1)">← Back</button>
+        <button class="btn btn-primary" style="flex:1;padding:13px;" onclick="regNext(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: SKILLS -->
+    <div id="regStep3" style="display:none;">
+      <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--leaf);margin-bottom:.3rem;">Your Skills &amp; Preferences</h3>
+      <p style="font-size:13px;color:var(--smoke);margin-bottom:1.3rem;">Help others find you for the right tasks.</p>
+
+      <div class="fg">
+        <label>Academic Skills &amp; Tools</label>
+        <div class="skill-wrap" id="skillWrap"></div>
+        <div class="skill-add">
+          <input type="text" id="skillInput" placeholder="Type a skill and press Add" onkeydown="if(event.key==='Enter'){event.preventDefault();addSkill();}">
+          <button onclick="addSkill()">+ Add</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:.6rem;" id="suggestSkills"></div>
+      </div>
+
+      <div class="fg">
+        <label>Languages You Work In</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:.3rem;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;"><input type="checkbox" id="rl_en" checked style="accent-color:var(--moss);"> English</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;"><input type="checkbox" id="rl_ur" style="accent-color:var(--moss);"> اردو Urdu</label>
+          <label style="display:flex;align-items:center;gap=6px;font-size:14px;cursor:pointer;"><input type="checkbox" id="rl_ps" style="accent-color:var(--moss);"> پښتو Pashto</label>
+          <label style="display:flex;align-items:center;gap=6px;font-size:14px;cursor:pointer;"><input type="checkbox" id="rl_pj" style="accent-color:var(--moss);"> Punjabi</label>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Availability</label>
+        <select class="fi" id="regAvail">
+          <option>Full time — available anytime</option>
+          <option>Part time — weekdays only</option>
+          <option>Weekends only</option>
+          <option>Limited — by appointment</option>
+        </select>
+      </div>
+
+      <div class="fg">
+        <label>How did you hear about SciQuest?</label>
+        <select class="fi" id="regReferral">
+          <option>From a classmate or friend</option>
+          <option>University notice board</option>
+          <option>WhatsApp group</option>
+          <option>Social media (Facebook/Instagram)</option>
+          <option>Search engine</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div style="background:var(--fog);border-radius:var(--r-sm);padding:.9rem 1rem;margin-bottom:1.3rem;font-size:12px;color:var(--smoke);line-height:1.7;">
+        By creating an account, you agree to our <a href="guidelines.html" style="color:var(--moss);">Community Guidelines</a> and <a href="privacy.html" style="color:var(--moss);">Privacy Policy</a>. SciQuest is for legitimate academic support only.
+      </div>
+
+      <div style="display:flex;justify-content:space-between;gap:10px;">
+        <button class="btn btn-secondary" onclick="regNext(2)">← Back</button>
+        <button class="btn btn-primary" style="flex:1;padding:13px;" onclick="completeReg()">🔬 Create My Account</button>
+      </div>
+    </div>
+  </div>
+  <a href="index.html" class="back-home">← Back to SciQuest</a>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+let regRole = 'both';
+let regSkills = [];
+const SUGGESTED_SKILLS = ['Thesis Writing','Synopsis Writing','SPSS Analysis','R Programming','Literature Review','PowerPoint Design','PCR Techniques','Microscopy','Data Entry','Survey Design','Academic Writing','HEC Formatting','APA Style','Statistics','Lab Reports','Urdu Writing'];
+
+document.addEventListener('DOMContentLoaded',()=>{
+  // Redirect if already logged in
+  if(DB.getUser()) { location.href='dashboard.html'; return; }
+
+  // Populate dropdowns
+  const us=document.getElementById('regUni'); UNIVERSITIES.forEach(u=>{const o=document.createElement('option');o.value=u;o.textContent=u;us.appendChild(o);});
+  const fs=document.getElementById('regField'); FIELDS.forEach(f=>{const o=document.createElement('option');o.value=f;o.textContent=f;fs.appendChild(o);});
+
+  // Suggestion chips
+  document.getElementById('suggestSkills').innerHTML = SUGGESTED_SKILLS.map(s=>
+    `<span onclick="addSkillDirect('${s}')" style="font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--bd);cursor:pointer;color:var(--steel);background:white;transition:all .15s;display:inline-block;" onmouseover="this.style.borderColor='var(--fern)';this.style.color='var(--moss)'" onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--steel)'">${s}</span>`
+  ).join('');
+});
+
+function selectRole(r){
+  regRole=r;
+  ['poster','helper','both'].forEach(x=>document.getElementById('role-'+x).classList.toggle('sel',x===r));
+}
+
+function regNext(n){
+  if(n===3 && !validateRegStep2()) return;
+  ['1','2','3'].forEach(i=>{
+    document.getElementById('regStep'+i).style.display = i==n?'block':'none';
+    document.getElementById('sb'+i).className = 'sb-item '+(i<n?'done':i==n?'active':'');
+    document.getElementById('sl'+i).className = 'sl '+(i==n?'act':'');
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function validateRegStep2(){
+  const fn=document.getElementById('regFname').value.trim();
+  const ln=document.getElementById('regLname').value.trim();
+  const em=document.getElementById('regEmail').value.trim();
+  const ph=document.getElementById('regPhone').value.trim();
+  const un=document.getElementById('regUni').value;
+  const dg=document.getElementById('regDegree').value;
+  const fd=document.getElementById('regField').value;
+  const pw=document.getElementById('regPw').value;
+  const pc=document.getElementById('regPwConf').value;
+
+  if(!fn){ toast('Please enter your first name.','warning'); document.getElementById('regFname').focus(); return false; }
+  if(!ln){ toast('Please enter your last name.','warning'); document.getElementById('regLname').focus(); return false; }
+  if(!em||!em.includes('@')){ toast('Please enter a valid email address.','warning'); document.getElementById('regEmail').focus(); return false; }
+
+  // Check if email already registered
+  const existing=DB.getUser();
+  if(existing && existing.email && existing.email.toLowerCase()===em.toLowerCase()){ toast('This email is already registered. Please sign in.','warning'); return false; }
+
+  if(!ph||!validatePakPhone(ph)){ toast('Please enter a valid Pakistani mobile number.','warning'); document.getElementById('regPhone').focus(); return false; }
+  if(!un){ toast('Please select your university.','warning'); return false; }
+  if(!dg){ toast('Please select your degree.','warning'); return false; }
+  if(!fd){ toast('Please select your field.','warning'); return false; }
+  if(pw.length<8){ toast('Password must be at least 8 characters.','warning'); return false; }
+  if(pw!==pc){ toast('Passwords do not match.','warning'); document.getElementById('regPwConf').focus(); return false; }
+  return true;
+}
+
+function checkPwStrength(pw){
+  let score=0;
+  if(pw.length>=8) score++;
+  if(/[A-Z]/.test(pw)) score++;
+  if(/[0-9]/.test(pw)) score++;
+  if(/[^a-zA-Z0-9]/.test(pw)) score++;
+  const fill=document.getElementById('strengthFill');
+  const label=document.getElementById('strengthLabel');
+  const colors=['#ef4444','#f97316','#3b82f6','#22c55e'];
+  const labels=['Weak — add uppercase & numbers','Fair — add a symbol','Good','Strong password ✓'];
+  fill.style.width=(score*25)+'%';
+  fill.style.background=colors[score-1]||'#e5e7eb';
+  label.textContent=score>0?labels[score-1]:'Enter at least 8 characters';
+  label.style.color=score===4?'#15803d':'';
+}
+
+function toggleRegPw(){
+  const inp=document.getElementById('regPw');
+  inp.type=inp.type==='password'?'text':'password';
+}
+
+function validateRegPhone(el){
+  const hint=document.getElementById('phoneHint');
+  if(validatePakPhone(el.value)){ hint.style.color='var(--moss)'; hint.textContent='✓ Valid Pakistani number'; }
+  else if(el.value.length>4){ hint.style.color='var(--red)'; hint.textContent='Enter a valid Pakistani number: 03XXXXXXXXX'; }
+  else { hint.style.color=''; hint.textContent='Used to coordinate task delivery — only shared with your task partner'; }
+}
+
+function renderSkills(){
+  document.getElementById('skillWrap').innerHTML=regSkills.map((s,i)=>
+    `<span class="skill-chip">${escHtml(s)}<button onclick="removeSkill(${i})">×</button></span>`
+  ).join('');
+}
+function addSkill(){ const inp=document.getElementById('skillInput'); const s=inp.value.trim(); if(s&&!regSkills.includes(s)&&regSkills.length<15){regSkills.push(s);renderSkills();} inp.value=''; }
+function addSkillDirect(s){ if(!regSkills.includes(s)&&regSkills.length<15){regSkills.push(s);renderSkills();} }
+function removeSkill(i){ regSkills.splice(i,1);renderSkills(); }
+
+function previewPhoto(input){
+  const f=input.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    const zone=document.getElementById('photoZone');
+    zone.innerHTML=`<img src="${e.target.result}" alt="Photo">`;
+  };
+  r.readAsDataURL(f);
+}
+
+function completeReg(){
+  const fn=document.getElementById('regFname').value.trim();
+  const ln=document.getElementById('regLname').value.trim();
+  const fullName=fn+' '+ln;
+  const em=document.getElementById('regEmail').value.trim();
+  const ph=document.getElementById('regPhone').value.trim();
+  const langs=['rl_en','rl_ur','rl_ps','rl_pj'].filter(id=>document.getElementById(id).checked).map(id=>({rl_en:'English',rl_ur:'Urdu',rl_ps:'Pashto',rl_pj:'Punjabi'}[id]));
+
+  const user={
+    name: fullName,
+    initials: initials(fullName),
+    email: em.toLowerCase(),
+    phone: ph,
+    university: document.getElementById('regUni').value,
+    degree: document.getElementById('regDegree').value,
+    field: document.getElementById('regField').value,
+    bio: document.getElementById('regBio').value.trim(),
+    role: regRole,
+    skills: regSkills,
+    languages: langs,
+    availability: document.getElementById('regAvail').value,
+    color: randomColor(),
+    walletBalance: 0,
+    tasksCompleted: 0,
+    tasksPosted: 0,
+    weeklyPoints: 0,
+    rating: 0,
+    verified: false,
+    joinedAt: Date.now(),
+  };
+
+  DB.setUser(user);
+  DB.addNotif({type:'system',icon:'🎉',bg:'#f0fdf4',title:'Welcome to SciQuest!',body:`Your account has been created, ${fn}. Explore open tasks or post your first assignment.`});
+
+  showProcessing('Creating your account...','Setting up your academic profile');
+  setTimeout(()=>{
+    showSuccess(`Welcome to SciQuest, ${fn}!`,'Your account is ready. Start browsing open tasks or post your first assignment.');
+    document.getElementById('sqProcBtn').textContent='Go to Dashboard →';
+    document.getElementById('sqProcBtn').onclick=()=>location.href='dashboard.html';
+    document.getElementById('sqProcBtn').style.display='block';
+  },1800);
+}
+</script>
+</body>
+</html>

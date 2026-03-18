@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Messages — SciQuest</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/app.css">
+<style>
+.chat-app { display:grid; grid-template-columns:320px 1fr; height:calc(100vh - 68px); background:white; }
+.chat-sidebar { border-right:1px solid var(--border); display:flex; flex-direction:column; background:#fafafa; }
+.chat-sidebar-header { padding:1rem 1.2rem; border-bottom:1px solid var(--border); background:white; }
+.chat-sidebar-header h3 { font-size:16px; font-weight:700; color:var(--ink); }
+.chat-search { padding:.6rem 1rem; border-bottom:1px solid var(--border); background:white; }
+.chat-search input { width:100%; padding:8px 14px; border:1px solid var(--border); border-radius:20px; font-size:13px; font-family:var(--font-body); outline:none; background:var(--sand); }
+.chat-search input:focus { border-color:var(--fern); background:white; }
+.convo-list { flex:1; overflow-y:auto; }
+.convo-item { display:flex; gap:10px; align-items:center; padding:12px 14px; cursor:pointer; border-bottom:1px solid var(--border); transition:background .15s; }
+.convo-item:hover { background:white; }
+.convo-item.active { background:var(--mist); border-left:3px solid var(--fern); }
+.convo-item.unread .convo-name { font-weight:700; }
+.convo-item.unread .convo-preview { color:var(--ink); font-weight:500; }
+.convo-info { flex:1; min-width:0; }
+.convo-name { font-size:14px; font-weight:600; color:var(--ink); display:flex; justify-content:space-between; }
+.convo-time { font-size:11px; color:#aaa; font-weight:400; }
+.convo-preview { font-size:12px; color:#888; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px; }
+.convo-badge { background:#dc2626; color:white; font-size:10px; font-weight:700; min-width:18px; height:18px; border-radius:9px; display:flex; align-items:center; justify-content:center; padding:0 4px; flex-shrink:0; }
+.task-tag { font-size:10px; background:var(--mist); color:var(--moss); padding:1px 7px; border-radius:10px; font-weight:600; margin-top:2px; display:inline-block; }
+
+/* CHAT WINDOW */
+.chat-window { display:flex; flex-direction:column; height:100%; }
+.chat-header { padding:.9rem 1.3rem; border-bottom:1px solid var(--border); background:white; display:flex; align-items:center; gap:12px; flex-shrink:0; }
+.chat-header-info { flex:1; }
+.chat-header-name { font-size:15px; font-weight:700; color:var(--ink); }
+.chat-header-task { font-size:12px; color:#888; margin-top:1px; }
+.chat-header-actions { display:flex; gap:8px; }
+.online-dot { width:9px; height:9px; border-radius:50%; background:#22c55e; display:inline-block; margin-right:4px; }
+.messages-area { flex:1; overflow-y:auto; padding:1.2rem; display:flex; flex-direction:column; gap:.8rem; background:var(--sand); }
+.msg-row { display:flex; align-items:flex-end; gap:8px; max-width:72%; }
+.msg-row.mine { align-self:flex-end; flex-direction:row-reverse; }
+.msg-bubble { padding:10px 14px; border-radius:18px; font-size:14px; line-height:1.55; word-break:break-word; position:relative; }
+.msg-row:not(.mine) .msg-bubble { background:white; border:1px solid var(--border); border-bottom-left-radius:4px; color:var(--ink); }
+.msg-row.mine .msg-bubble { background:var(--leaf); color:white; border-bottom-right-radius:4px; }
+.msg-time { font-size:10px; color:#aaa; white-space:nowrap; margin-bottom:2px; }
+.msg-row.mine .msg-time { text-align:right; }
+.msg-status { font-size:10px; }
+.msg-status.read { color:var(--fern); }
+.msg-img { max-width:200px; border-radius:12px; display:block; margin-top:6px; cursor:pointer; }
+.msg-file { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.15); border-radius:8px; padding:8px 10px; margin-top:6px; font-size:12px; cursor:pointer; }
+.msg-file:hover { background:rgba(255,255,255,.25); }
+.system-msg { text-align:center; font-size:12px; color:#aaa; background:white; border:1px solid var(--border); border-radius:20px; padding:4px 14px; align-self:center; }
+
+/* INPUT AREA */
+.chat-input-area { padding:.8rem 1rem; border-top:1px solid var(--border); background:white; flex-shrink:0; }
+.chat-input-row { display:flex; align-items:flex-end; gap:8px; }
+.chat-input-wrap { flex:1; border:1.5px solid var(--border-md); border-radius:24px; display:flex; align-items:flex-end; padding:6px 12px; gap:6px; transition:border-color .2s; background:white; }
+.chat-input-wrap:focus-within { border-color:var(--fern); }
+.chat-input { flex:1; border:none; outline:none; font-size:14px; font-family:var(--font-body); resize:none; max-height:100px; line-height:1.5; background:transparent; }
+.attach-btn, .emoji-btn { background:none; border:none; font-size:1.1rem; cursor:pointer; color:#888; padding:2px 4px; transition:color .2s; }
+.attach-btn:hover, .emoji-btn:hover { color:var(--moss); }
+.send-btn { width:42px; height:42px; border-radius:50%; background:var(--leaf); border:none; color:white; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .2s; }
+.send-btn:hover { background:var(--moss); transform:scale(1.05); }
+.send-btn:disabled { background:#ccc; cursor:not-allowed; }
+.typing-indicator { font-size:12px; color:#888; padding:0 .5rem; height:16px; }
+.chat-input-area input[type=file] { display:none; }
+
+/* TASK CONTEXT CARD */
+.task-context-bar { background:linear-gradient(135deg,var(--leaf),var(--moss)); padding:.7rem 1.3rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-shrink:0; }
+.task-context-bar .tc-title { font-size:13px; font-weight:600; color:white; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.task-context-bar .tc-pay { font-family:var(--font-display); font-size:1rem; color:var(--fern); font-weight:700; white-space:nowrap; }
+.task-context-bar a { font-size:12px; color:rgba(255,255,255,.8); text-decoration:none; border:1px solid rgba(255,255,255,.3); padding:3px 10px; border-radius:12px; transition:all .2s; white-space:nowrap; }
+.task-context-bar a:hover { background:rgba(255,255,255,.15); color:white; }
+
+/* EMPTY STATE */
+.chat-empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#888; background:var(--sand); }
+.chat-empty .icon { font-size:3.5rem; margin-bottom:1rem; }
+.chat-empty h3 { font-size:1.1rem; font-weight:700; color:#666; margin-bottom:.5rem; }
+.chat-empty p { font-size:13px; text-align:center; max-width:280px; line-height:1.7; }
+
+/* MOBILE */
+@media (max-width:700px) {
+  .chat-app { grid-template-columns:1fr; }
+  .chat-sidebar { display:none; }
+  .chat-sidebar.mobile-open { display:flex; position:fixed; inset:0; top:68px; z-index:100; width:100%; }
+}
+</style>
+</head>
+<body>
+<div class="particles" id="particles"></div>
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">Sci<span>Quest</span></a>
+    <div class="nav-center">
+      <a href="browse.html" class="nav-link">Browse Tasks</a>
+      <a href="leaderboard.html" class="nav-link">Leaderboard</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+    </div>
+    <div class="nav-right" id="navRight">
+      <a href="login.html" class="btn-ghost">Sign In</a>
+      <a href="register.html" class="btn-nav-cta">Join Free</a>
+      <button class="hamburger" id="hamburger">&#9776;</button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobileMenu"><a href="browse.html">Browse</a><a href="dashboard.html">Dashboard</a></div>
+</nav>
+
+<div class="main-content" style="padding-top:68px;">
+  <div class="chat-app">
+
+    <!-- SIDEBAR: conversation list -->
+    <div class="chat-sidebar" id="chatSidebar">
+      <div class="chat-sidebar-header">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3>Messages</h3>
+          <span id="unreadTotal" style="background:#dc2626;color:white;font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;display:none;"></span>
+        </div>
+        <div style="font-size:12px;color:#888;margin-top:2px;">Task-based conversations</div>
+      </div>
+      <div class="chat-search"><input type="text" id="convoSearch" placeholder="Search conversations..." oninput="filterConvos(this.value)"></div>
+      <div class="convo-list" id="convoList"></div>
+    </div>
+
+    <!-- CHAT WINDOW -->
+    <div class="chat-window" id="chatWindow">
+      <div class="chat-empty" id="chatEmpty">
+        <div class="icon">💬</div>
+        <h3>Your Messages</h3>
+        <p>Select a conversation from the left, or accept a task to start chatting with the poster/helper.</p>
+        <a href="browse.html" class="btn-primary" style="margin-top:1rem;">Browse Tasks →</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/main.js"></script>
+<script>
+/* ---- DATA ---- */
+// Initial sample conversations shown only if no real convos exist
+const SAMPLE_CONVOS = [
+  {
+    id:'c1', taskId:4, taskTitle:'MPhil Synopsis — Helminths in Freshwater Fish', taskPay:2200,
+    other:{name:'Fatima Rao', initials:'FR', color:'#0f766e', role:'poster'},
+    unread:2, lastTime:'10:24 AM',
+    messages:[
+      {id:'m1', from:'Fatima Rao', fromInitials:'FR', fromColor:'#0f766e', text:'Assalam o Alaikum! I saw your profile and I think you are perfect for my synopsis task. Are you available?', time:'Mar 15, 9:10 AM', mine:false},
+      {id:'m2', from:'You', text:'Walaikum Assalam! Yes, I am available. Please share the details and I will start right away.', time:'Mar 15, 9:25 AM', mine:true},
+      {id:'m3', from:'Fatima Rao', fromInitials:'FR', fromColor:'#0f766e', text:'Great! I need a 2500-word HEC-format synopsis. I have attached my rough notes below.', time:'Mar 15, 9:30 AM', mine:false, file:{name:'Synopsis_Notes.docx', size:'42 KB'}},
+      {id:'m4', from:'You', text:'Received your notes. I will draft the synopsis and share a first draft within 2 days. Is that okay?', time:'Mar 15, 9:45 AM', mine:true},
+      {id:'m5', from:'Fatima Rao', fromInitials:'FR', fromColor:'#0f766e', text:'Perfect, jazakAllah! Please keep the methodology section aligned with PCR-based identification protocols.', time:'Mar 15, 10:00 AM', mine:false},
+      {id:'m6', from:'Fatima Rao', fromInitials:'FR', fromColor:'#0f766e', text:'Also, the deadline has been moved to April 25 — so no rush but please maintain quality 🙏', time:'Today, 10:22 AM', mine:false},
+      {id:'m7', from:'Fatima Rao', fromInitials:'FR', fromColor:'#0f766e', text:'Have you started on the objectives section?', time:'Today, 10:24 AM', mine:false},
+    ]
+  },
+  {
+    id:'c2', taskId:7, taskTitle:'Results & Discussion — Protozoan Parasite Study', taskPay:5000,
+    other:{name:'Zara Malik', initials:'ZM', color:'#166534', role:'poster'},
+    unread:0, lastTime:'Yesterday',
+    messages:[
+      {id:'n1', from:'Zara Malik', fromInitials:'ZM', fromColor:'#166534', text:'Hello! I need help editing my Chapter 4. It is 4000 words and needs professional academic language and gap-filling.', time:'Mar 14, 2:00 PM', mine:false},
+      {id:'n2', from:'You', text:'Sure, I can help. Please share the chapter and I will review it today.', time:'Mar 14, 2:30 PM', mine:true},
+      {id:'n3', from:'Zara Malik', fromInitials:'ZM', fromColor:'#166534', text:'Shared via Google Drive. Check your email. The password is "thesis2025".', time:'Mar 14, 3:00 PM', mine:false},
+      {id:'n4', from:'You', text:'Got it. I will have edits ready by tomorrow evening InshaAllah.', time:'Mar 14, 3:15 PM', mine:true},
+    ]
+  },
+  {
+    id:'c3', taskId:5, taskTitle:'SPSS Analysis — 200 Respondents', taskPay:4000,
+    other:{name:'Hamza Niazi', initials:'HN', color:'#b45309', role:'poster'},
+    unread:1, lastTime:'2 days ago',
+    messages:[
+      {id:'o1', from:'Hamza Niazi', fromInitials:'HN', fromColor:'#b45309', text:'Hi! I need SPSS analysis done. Is chi-square and binary logistic regression within your skill set?', time:'Mar 13, 11:00 AM', mine:false},
+      {id:'o2', from:'You', text:'Yes, I regularly do SPSS analysis. Share the Excel file and I will start today.', time:'Mar 13, 11:20 AM', mine:true},
+      {id:'o3', from:'Hamza Niazi', fromInitials:'HN', fromColor:'#b45309', text:'Data attached. Please write the results section in APA format with the output tables.', time:'Mar 13, 11:35 AM', mine:false, file:{name:'Survey_Data.xlsx', size:'128 KB'}},
+      {id:'o4', from:'Hamza Niazi', fromInitials:'HN', fromColor:'#b45309', text:'When do you think it will be done?', time:'Mar 15, 4:00 PM', mine:false},
+    ]
+  }
+];
+
+let activeConvoId = null;
+// Load real conversations from DB, falling back to empty (not samples) for new users
+let convos = DB.getConvos();
+if (!convos.length) {
+  // New users start with empty inbox - no fake conversations
+  convos = [];
+}
+let typingTimer = null;
+let fileInput = null;
+
+/* ---- AUTH GUARD ---- */
+document.addEventListener('DOMContentLoaded', () => {
+  const user = JSON.parse(localStorage.getItem('sq_user') || 'null');
+  if (!user) { showToast('Please sign in to view messages.','warning'); setTimeout(()=>window.location.href='login.html',1000); return; }
+
+  renderConvoList();
+  const urlParams = new URLSearchParams(window.location.search);
+  const openConvo = urlParams.get('convo');
+  if (openConvo) openChat(openConvo);
+  else if (convos.length > 0) openChat(convos[0].id);
+
+  updateUnreadTotal();
+});
+
+function saveConvos() { DB.set('sq_convos', convos); }
+
+function renderConvoList(filter='') {
+  const list = document.getElementById('convoList');
+  const filtered = convos.filter(c => !filter || c.taskTitle.toLowerCase().includes(filter) || c.other.name.toLowerCase().includes(filter));
+  if (!filtered.length) { list.innerHTML='<div style="text-align:center;padding:2rem;color:#aaa;font-size:13px;">No conversations found</div>'; return; }
+  list.innerHTML = filtered.map(c => {
+    const last = c.messages[c.messages.length-1];
+    return `<div class="convo-item ${c.id===activeConvoId?'active':''} ${c.unread>0?'unread':''}" onclick="openChat('${c.id}')">
+      <div class="avatar avatar-sm" style="background:${c.other.color}">${c.other.initials}</div>
+      <div class="convo-info">
+        <div class="convo-name">${c.other.name}<span class="convo-time">${c.lastTime}</span></div>
+        <div class="convo-preview">${last ? (last.mine?'You: ':'')+last.text.slice(0,45)+'...' : 'No messages yet'}</div>
+        <div class="task-tag">📋 ${c.taskTitle.slice(0,35)}...</div>
+      </div>
+      ${c.unread>0?`<div class="convo-badge">${c.unread}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function filterConvos(q) { renderConvoList(q); }
+
+function updateUnreadTotal() {
+  const total = convos.reduce((s,c)=>s+c.unread,0);
+  const el = document.getElementById('unreadTotal');
+  if (el) { el.textContent = total+' unread'; el.style.display = total>0?'inline':'none'; }
+}
+
+function openChat(convoId) {
+  activeConvoId = convoId;
+  const convo = convos.find(c=>c.id===convoId);
+  if (!convo) return;
+  convo.unread = 0;
+  saveConvos();
+  renderConvoList();
+  updateUnreadTotal();
+
+  const user = JSON.parse(localStorage.getItem('sq_user')||'{}');
+  const win = document.getElementById('chatWindow');
+  win.innerHTML = `
+    <div class="task-context-bar">
+      <div class="tc-title">📋 ${convo.taskTitle}</div>
+      <div class="tc-pay">₨${convo.taskPay.toLocaleString()}</div>
+      <a href="task-detail.html?id=${convo.taskId}">View Task →</a>
+    </div>
+    <div class="chat-header">
+      <div class="avatar avatar-md" style="background:${convo.other.color}">${convo.other.initials}</div>
+      <div class="chat-header-info">
+        <div class="chat-header-name"><span class="online-dot"></span>${convo.other.name}</div>
+        <div class="chat-header-task">${convo.other.role==='poster'?'Task Poster':'Task Helper'} · Active now</div>
+      </div>
+      <div class="chat-header-actions">
+        <button class="btn-secondary btn-sm" onclick="viewProfile()">👤 Profile</button>
+        <button class="btn-secondary btn-sm" onclick="reportUser()">🚩 Report</button>
+        <a href="wallet.html" class="btn-primary btn-sm">💳 Pay ₨${convo.taskPay.toLocaleString()}</a>
+      </div>
+    </div>
+    <div class="messages-area" id="msgArea"></div>
+    <div class="typing-indicator" id="typingIndicator"></div>
+    <div class="chat-input-area">
+      <div class="chat-input-row">
+        <div class="chat-input-wrap">
+          <button class="emoji-btn" onclick="toggleEmoji()">😊</button>
+          <textarea class="chat-input" id="msgInput" placeholder="Type a message..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this);showTyping()"></textarea>
+          <label class="attach-btn" for="fileAttach" title="Attach file">📎</label>
+          <input type="file" id="fileAttach" accept=".pdf,.docx,.pptx,.xlsx,.jpg,.png" onchange="handleFileAttach(this)">
+        </div>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send">➤</button>
+      </div>
+      <div id="attachPreview" style="margin-top:6px;display:none;"></div>
+      <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;" id="quickReplies"></div>
+    </div>`;
+
+  renderMessages(convo);
+  renderQuickReplies(convo);
+  scrollToBottom();
+}
+
+function renderMessages(convo) {
+  const area = document.getElementById('msgArea');
+  if (!area) return;
+  area.innerHTML = convo.messages.map((m,i) => {
+    const prev = convo.messages[i-1];
+    let dateDiv = '';
+    if (!prev || new Date(m.time).toDateString() !== new Date(prev.time).toDateString()) {
+      dateDiv = `<div class="system-msg">${m.time.split(',')[0]}</div>`;
+    }
+    if (m.system) return `<div class="system-msg">🔒 ${m.text}</div>`;
+    return `${dateDiv}<div class="msg-row ${m.mine?'mine':''}">
+      ${!m.mine?`<div class="avatar avatar-xs" style="background:${m.fromColor||'#888'}">${m.fromInitials||'?'}</div>`:''}
+      <div>
+        <div class="msg-bubble">
+          ${m.text}
+          ${m.file?`<div class="msg-file" onclick="showToast('Opening ${m.file.name}...')">📄 <span>${m.file.name}</span><span style="opacity:.7;margin-left:auto;">${m.file.size}</span></div>`:''}
+        </div>
+        <div class="msg-time">${m.time.includes(',')?m.time.split(', ')[1]:m.time} ${m.mine?`<span class="msg-status read">✓✓</span>`:''}</div>
+      </div>
+    </div>`;
+  }).join('');
+  scrollToBottom();
+}
+
+function renderQuickReplies(convo) {
+  const qr = document.getElementById('quickReplies');
+  if (!qr) return;
+  const replies = ['JazakAllah! I will get started.','Please share the file.','Delivery in 2 days InshaAllah.','Done! Please review.','Can we discuss the requirements?','Payment received, thank you!'];
+  qr.innerHTML = replies.map(r=>`<button onclick="insertQuickReply('${r}')" style="font-size:11px;padding:4px 10px;border-radius:14px;border:1px solid var(--border);background:var(--sand);color:#555;cursor:pointer;font-family:var(--font-body);transition:all .15s;" onmouseover="this.style.borderColor='var(--fern)'" onmouseout="this.style.borderColor='var(--border)'">${r}</button>`).join('');
+}
+
+function insertQuickReply(text) { const inp=document.getElementById('msgInput'); if(inp){inp.value=text;inp.focus();} }
+
+function handleKey(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} }
+
+function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
+
+let attachedFile = null;
+function handleFileAttach(input) {
+  const f = input.files[0]; if(!f) return;
+  attachedFile = {name:f.name, size:(f.size/1024).toFixed(0)+' KB'};
+  const prev = document.getElementById('attachPreview');
+  prev.style.display='flex';
+  prev.innerHTML=`<div style="display:flex;align-items:center;gap:8px;background:var(--mist);padding:6px 12px;border-radius:8px;font-size:12px;"><span>📎 ${f.name}</span><span style="color:#888;">${attachedFile.size}</span><button onclick="removeAttach()" style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:14px;">×</button></div>`;
+}
+function removeAttach() { attachedFile=null; document.getElementById('attachPreview').style.display='none'; document.getElementById('fileAttach').value=''; }
+
+function showTyping() {
+  clearTimeout(typingTimer);
+  const ti = document.getElementById('typingIndicator');
+  if(ti) ti.textContent = '';
+  typingTimer = setTimeout(()=>{ if(ti) ti.textContent = ''; }, 1500);
+}
+
+function sendMessage() {
+  const input = document.getElementById('msgInput');
+  const text = input?.value.trim();
+  if (!text && !attachedFile) return;
+
+  const convo = convos.find(c=>c.id===activeConvoId);
+  if (!convo) return;
+
+  const user = JSON.parse(localStorage.getItem('sq_user')||'{}');
+  const msg = {
+    id: 'm'+Date.now(),
+    from: user.name||'You',
+    text: text||'',
+    time: 'Today, '+new Date().toLocaleTimeString('en-PK',{hour:'2-digit',minute:'2-digit'}),
+    mine: true,
+    ...(attachedFile?{file:attachedFile}:{})
+  };
+
+  convo.messages.push(msg);
+  convo.lastTime = 'Just now';
+  saveConvos();
+
+  if(input) { input.value=''; input.style.height='auto'; }
+  removeAttach();
+
+  renderMessages(convo);
+  renderConvoList();
+
+  // Simulate reply after 2-4 seconds
+  const replies = [
+    'Okay, understood! I will check and get back to you.',
+    'JazakAllah khair! I will review this.',
+    'Noted. I will have it done by tomorrow InshaAllah.',
+    'Thank you for the update. Looking forward to the work.',
+    'Can you please clarify the word count requirement?',
+    'Sure! I will start right away.',
+  ];
+  setTimeout(() => {
+    const autoReply = {
+      id: 'm'+Date.now(),
+      from: convo.other.name,
+      fromInitials: convo.other.initials,
+      fromColor: convo.other.color,
+      text: replies[Math.floor(Math.random()*replies.length)],
+      time: 'Today, '+new Date().toLocaleTimeString('en-PK',{hour:'2-digit',minute:'2-digit'}),
+      mine: false,
+    };
+    convo.messages.push(autoReply);
+    convo.lastTime = 'Just now';
+    saveConvos();
+    if(activeConvoId===convo.id) renderMessages(convo);
+    renderConvoList();
+    // Notification
+    store.addNotification({type:'message', title:'New message from '+convo.other.name, body:autoReply.text.slice(0,60)+'...'});
+    updateNotifBadge();
+  }, 1800+Math.random()*2200);
+}
+
+function scrollToBottom() { const a=document.getElementById('msgArea'); if(a) a.scrollTop=a.scrollHeight; }
+
+function toggleEmoji() {
+  const emojis = ['😊','👍','🙏','✅','📝','🔬','💡','🤝','📚','⭐','🎉','💪'];
+  const existing = document.getElementById('emojiPicker');
+  if(existing) { existing.remove(); return; }
+  const picker = document.createElement('div');
+  picker.id='emojiPicker';
+  picker.style.cssText='position:absolute;bottom:120px;left:60px;background:white;border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-wrap:wrap;gap:6px;width:200px;box-shadow:var(--shadow-lg);z-index:100;';
+  picker.innerHTML=emojis.map(e=>`<span style="font-size:1.4rem;cursor:pointer;padding:2px;" onclick="addEmoji('${e}')">${e}</span>`).join('');
+  document.querySelector('.chat-input-area').style.position='relative';
+  document.querySelector('.chat-input-area').appendChild(picker);
+}
+function addEmoji(e) { const inp=document.getElementById('msgInput'); if(inp){inp.value+=e;inp.focus();} document.getElementById('emojiPicker')?.remove(); }
+
+function viewProfile() { window.location.href='profile.html'; }
+function reportUser() { if(confirm('Report this user for inappropriate behaviour?')) showToast('Report submitted. Admin will review within 24 hours.','info'); }
+
+// Start a new convo from task-detail
+function startConvoForTask(taskId, taskTitle, taskPay, other) {
+  const existingConvo = convos.find(c=>c.taskId===taskId);
+  if(existingConvo) { window.location.href=`messages.html?convo=${existingConvo.id}`; return; }
+  const newConvo = {
+    id: 'c'+Date.now(), taskId, taskTitle, taskPay,
+    other, unread:0, lastTime:'Just now',
+    messages:[{id:'m0', system:true, text:'Conversation started for task: '+taskTitle, time:new Date().toLocaleString('en-PK')}]
+  };
+  convos.unshift(newConvo);
+  saveConvos();
+  window.location.href=`messages.html?convo=${newConvo.id}`;
+}
+</script>
+</body>
+</html>

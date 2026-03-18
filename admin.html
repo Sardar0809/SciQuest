@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — SciQuest</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/app.css">
+<style>
+body { background: #f8f9fa; }
+.admin-layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+.admin-sidebar { background: #0c1a12; position: fixed; top: 0; left: 0; bottom: 0; width: 240px; overflow-y: auto; z-index: 500; }
+.admin-sidebar-logo { padding: 1.5rem 1.5rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.admin-sidebar-logo .logo { font-family: var(--font-display); font-size: 1.3rem; color: white; }
+.admin-sidebar-logo .logo span { color: var(--fern); font-style: italic; }
+.admin-sidebar-logo .ab { display: inline-block; margin-top: 4px; background: #fef3c7; color: #92400e; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+.admin-nav-section { padding: 1rem 0.8rem 0.3rem; }
+.admin-nav-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: rgba(255,255,255,0.3); padding: 0 0.7rem; margin-bottom: 0.4rem; }
+.admin-nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; font-size: 14px; color: rgba(255,255,255,0.65); cursor: pointer; transition: all 0.18s; margin-bottom: 2px; text-decoration: none; }
+.admin-nav-item:hover { background: rgba(255,255,255,0.07); color: white; }
+.admin-nav-item.active { background: rgba(82,183,136,0.18); color: var(--fern); font-weight: 600; }
+.admin-nav-item .ni { width: 18px; text-align: center; }
+.admin-nav-badge { margin-left: auto; background: #dc2626; color: white; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; }
+.admin-main { margin-left: 240px; padding: 2rem; min-height: 100vh; }
+.admin-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.admin-topbar h1 { font-family: var(--font-display); font-size: 1.6rem; color: var(--ink); }
+.admin-topbar-right { display: flex; gap: 10px; align-items: center; }
+.admin-metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 2rem; }
+.admin-metric { background: white; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.3rem; position: relative; overflow: hidden; }
+.admin-metric::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background: var(--am-color,var(--fern)); }
+.admin-metric .am-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 0.5rem; }
+.admin-metric .am-value { font-family: var(--font-display); font-size: 2rem; color: var(--ink); }
+.admin-metric .am-sub { font-size: 12px; color: #aaa; margin-top: 3px; }
+.admin-metric .am-change { font-size: 12px; font-weight: 600; margin-top: 4px; }
+.admin-metric .am-change.up { color: #16a34a; }
+.admin-metric .am-change.down { color: #dc2626; }
+.panel { background: white; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.5rem; }
+.panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; }
+.panel-header h3 { font-size: 15px; font-weight: 700; color: var(--ink); }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { text-align: left; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #888; padding: 10px 12px; border-bottom: 2px solid var(--border); white-space: nowrap; }
+.data-table td { padding: 12px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: #fafafa; }
+.action-btns { display: flex; gap: 6px; }
+.action-btn { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid; cursor: pointer; font-family: var(--font-body); transition: all 0.15s; white-space: nowrap; }
+.action-btn.approve { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+.action-btn.approve:hover { background: #dcfce7; }
+.action-btn.reject { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+.action-btn.reject:hover { background: #fee2e2; }
+.action-btn.view { background: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
+.action-btn.view:hover { background: #dbeafe; }
+.action-btn.warn { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+.action-btn.warn:hover { background: #fef9c3; }
+.action-btn.ban { background: #fef2f2; color: #7f1d1d; border-color: #fecaca; }
+.toggle-switch { position: relative; width: 40px; height: 22px; cursor: pointer; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; inset: 0; background: #ccc; border-radius: 11px; transition: 0.3s; }
+.toggle-slider::before { content:''; position:absolute; width:16px; height:16px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+.toggle-switch input:checked + .toggle-slider { background: var(--moss); }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
+.tx-status{font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;display:inline-block;}.ts-approved{background:#f0fdf4;color:#166534;}.ts-pending{background:#fef3c7;color:#92400e;}.ts-rejected{background:#fef2f2;color:#991b1b;}
+.chart-bars { display: flex; gap: 8px; align-items: flex-end; height: 120px; padding: 0.5rem 0; }
+.chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; }
+.chart-bar { width: 100%; border-radius: 4px 4px 0 0; transition: opacity 0.2s; }
+.chart-bar:hover { opacity: 0.8; }
+.chart-bar-label { font-size: 10px; color: #aaa; }
+.stat-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.pending-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.search-filter-row { display: flex; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap; }
+.search-filter-row input { flex: 1; min-width: 180px; padding: 8px 14px; border: 1px solid var(--border-md); border-radius: var(--radius-sm); font-size: 13px; font-family: var(--font-body); outline: none; }
+.search-filter-row input:focus { border-color: var(--fern); }
+.search-filter-row select { padding: 8px 12px; border: 1px solid var(--border-md); border-radius: var(--radius-sm); font-size: 13px; font-family: var(--font-body); outline: none; background: white; }
+.admin-tab-content { display: none; }
+.admin-tab-content.active { display: block; }
+@media (max-width: 900px) { .admin-layout { grid-template-columns: 1fr; } .admin-sidebar { display: none; } .admin-main { margin-left: 0; } .admin-metrics { grid-template-columns: repeat(2,1fr); } }
+</style>
+</head>
+<body>
+
+<!-- ADMIN SIDEBAR -->
+<div class="admin-sidebar">
+  <div class="admin-sidebar-logo">
+    <div class="logo">Sci<span>Quest</span></div>
+    <div class="ab">Admin Panel</div>
+  </div>
+
+  <div class="admin-nav-section">
+    <div class="admin-nav-section-label">Overview</div>
+    <a class="admin-nav-item active" onclick="showAdminSection('overview')"><span class="ni">📊</span> Dashboard</a>
+    <a class="admin-nav-item" onclick="showAdminSection('analytics')"><span class="ni">📈</span> Analytics</a>
+  </div>
+
+  <div class="admin-nav-section">
+    <div class="admin-nav-section-label">Management</div>
+    <a class="admin-nav-item" onclick="showAdminSection('tasks')"><span class="ni">📋</span> Tasks <span class="admin-nav-badge" id="pendingBadge">5</span></a>
+    <a class="admin-nav-item" onclick="showAdminSection('users')"><span class="ni">👥</span> Users</a>
+    <a class="admin-nav-item" onclick="showAdminSection('reports')"><span class="ni">🚩</span> Reports <span class="admin-nav-badge">2</span></a>
+    <a class="admin-nav-item" onclick="showAdminSection('leaderboard')"><span class="ni">🏆</span> Leaderboard</a>
+  </div>
+
+  <div class="admin-nav-section">
+    <div class="admin-nav-section-label">Settings</div>
+    <a class="admin-nav-item" onclick="showAdminSection('settings')"><span class="ni">⚙️</span> Platform Settings</a>
+    <a class="admin-nav-item" onclick="showAdminSection('announcements')"><span class="ni">📢</span> Announcements</a>
+    <a class="admin-nav-item" onclick="showAdminSection('fields')"><span class="ni">📚</span> Fields & Categories</a>
+  </div>
+
+  <div style="padding:1.5rem;margin-top:auto;">
+    <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-bottom:0.8rem;">Signed in as Admin</div>
+    <a href="index.html" style="font-size:13px;color:rgba(255,255,255,0.5);display:block;padding:6px 0;transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">← Exit to Site</a>
+    <a href="login.html" onclick="logout()" style="font-size:13px;color:#f87171;display:block;padding:6px 0;transition:color 0.2s;" onmouseover="this.style.color='#fca5a5'" onmouseout="this.style.color='#f87171'">↩ Sign Out</a>
+  </div>
+</div>
+
+<!-- ADMIN MAIN -->
+<div class="admin-main">
+
+  <!-- OVERVIEW -->
+  <div class="admin-tab-content active" id="section-overview">
+    <div class="admin-topbar">
+      <div>
+        <h1>Admin Dashboard</h1>
+        <div style="font-size:13px;color:#888;margin-top:2px;">Last updated: <strong id="lastUpdated"></strong></div>
+      </div>
+      <div class="admin-topbar-right">
+        <button class="btn-primary btn-sm" onclick="showAdminSection('announcements')">📢 Send Announcement</button>
+        <button class="btn-secondary btn-sm" onclick="location.reload()">↺ Refresh</button>
+      </div>
+    </div>
+
+    <div class="admin-metrics">
+      <div class="admin-metric" style="--am-color:#52b788;">
+        <div class="am-label">Total Users</div>
+        <div class="am-value">1,842</div>
+        <div class="am-sub">142 this month</div>
+        <div class="am-change up">↑ 12.4% vs last month</div>
+      </div>
+      <div class="admin-metric" style="--am-color:#2563eb;">
+        <div class="am-label">Open Tasks</div>
+        <div class="am-value">284</div>
+        <div class="am-sub">8 pending approval</div>
+        <div class="am-change up">↑ 8.1% vs last week</div>
+      </div>
+      <div class="admin-metric" style="--am-color:#d97706;">
+        <div class="am-label">Completed Tasks</div>
+        <div class="am-value">384</div>
+        <div class="am-sub">₨0 platform revenue</div>
+        <div class="am-change up">↑ 23 this week</div>
+      </div>
+      <div class="admin-metric" style="--am-color:#dc2626;">
+        <div class="am-label">Flagged Content</div>
+        <div class="am-value">2</div>
+        <div class="am-sub">Needs immediate review</div>
+        <div class="am-change down">⚠ Action required</div>
+      </div>
+    </div>
+
+    <div class="stat-grid-2">
+      <!-- RECENT SIGNUPS -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3>Recent Signups</h3>
+          <button class="action-btn view" onclick="showAdminSection('users')">View All</button>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>Name</th><th>Field</th><th>University</th><th>Joined</th><th>Action</th></tr></thead>
+          <tbody id="recentSignups"></tbody>
+        </table>
+      </div>
+
+      <!-- PENDING TASKS -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3>Tasks Pending Approval</h3>
+          <span class="tag tag-warning">5 pending</span>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>Title</th><th>Type</th><th>Pay</th><th>Action</th></tr></thead>
+          <tbody id="pendingTasks"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ACTIVITY CHART -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3>Platform Activity — Last 7 Days</h3>
+        <select style="font-size:13px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;font-family:var(--font-body);outline:none;">
+          <option>Tasks Posted</option>
+          <option>Tasks Completed</option>
+          <option>New Users</option>
+        </select>
+      </div>
+      <div class="chart-bars" id="activityChart"></div>
+    </div>
+  </div>
+
+  <!-- TASKS MANAGEMENT -->
+  <div class="admin-tab-content" id="section-tasks">
+    <div class="admin-topbar">
+      <h1>Task Management</h1>
+      <div class="admin-topbar-right">
+        <span class="tag tag-warning">5 pending approval</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="search-filter-row">
+        <input type="text" placeholder="Search tasks..." oninput="filterAdminTasks(this.value)">
+        <select onchange="filterAdminTasks('','',this.value)">
+          <option value="">All Types</option>
+          <option>Thesis</option><option>Synopsis</option><option>Presentation</option>
+          <option>Survey</option><option>Data Analysis</option>
+        </select>
+        <select>
+          <option>All Status</option><option>Pending</option><option>Open</option><option>Completed</option><option>Flagged</option>
+        </select>
+      </div>
+      <table class="data-table" id="adminTasksTable">
+        <thead><tr><th>ID</th><th>Title</th><th>Type</th><th>Posted By</th><th>Pay</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody id="adminTasksBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- USER MANAGEMENT -->
+  <div class="admin-tab-content" id="section-users">
+    <div class="admin-topbar">
+      <h1>User Management</h1>
+      <div class="admin-topbar-right">
+        <span style="font-size:14px;color:#888;">1,842 total users</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="search-filter-row">
+        <input type="text" placeholder="Search by name, email or university...">
+        <select><option>All Fields</option></select>
+        <select><option>All Universities</option></select>
+        <select><option>All Roles</option><option>Poster</option><option>Helper</option><option>Both</option></select>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>User</th><th>Field</th><th>University</th><th>Tasks</th><th>Rating</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="usersTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- REPORTS -->
+  <div class="admin-tab-content" id="section-reports">
+    <div class="admin-topbar"><h1>Reports & Flagged Content</h1></div>
+    <div class="panel">
+      <div class="panel-header"><h3>Active Reports</h3><span class="tag tag-danger">2 urgent</span></div>
+      <table class="data-table">
+        <thead><tr><th>Report #</th><th>Type</th><th>Reported Item</th><th>Reported By</th><th>Reason</th><th>Date</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>#R001</td><td><span class="tag tag-danger">Task</span></td><td>Suspicious thesis offer — non-academic</td><td>Bilal Ahmad</td><td>Potential academic dishonesty</td><td>Today</td><td><div class="action-btns"><button class="action-btn reject">Remove</button><button class="action-btn warn">Warn User</button><button class="action-btn view">View</button></div></td></tr>
+          <tr><td>#R002</td><td><span class="tag tag-warning">User</span></td><td>Unknown User #342</td><td>Sara Khan</td><td>Fake university credentials</td><td>Yesterday</td><td><div class="action-btns"><button class="action-btn ban">Ban User</button><button class="action-btn view">Investigate</button></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD ADMIN -->
+  <div class="admin-tab-content" id="section-leaderboard">
+    <div class="admin-topbar">
+      <h1>Leaderboard Management</h1>
+      <div class="admin-topbar-right">
+        <button class="btn-danger" onclick="if(confirm('Reset weekly leaderboard?')){showToast('Leaderboard reset successfully.','info')}">🔄 Reset Now</button>
+        <button class="btn-primary" onclick="showToast('Leaderboard pinned and published.')">📌 Pin Top 3</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h3>Current Weekly Rankings</h3><span style="font-size:13px;color:#888;">Resets Sunday 12:00 AM</span></div>
+      <table class="data-table">
+        <thead><tr><th>Rank</th><th>Student</th><th>Field</th><th>University</th><th>Tasks</th><th>Rating</th><th>Badge</th><th>Override Rank</th></tr></thead>
+        <tbody id="lbAdminBody"></tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h3>Leaderboard Settings</h3></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+        <div class="form-group"><label>Reset Schedule</label>
+          <select><option selected>Every Sunday at 12:00 AM</option><option>Every Monday at 12:00 AM</option><option>Every 2 weeks</option><option>Monthly</option></select>
+        </div>
+        <div class="form-group"><label>Points per Completed Task</label>
+          <input type="number" value="1" style="padding:10px 14px;border:1.5px solid var(--border-md);border-radius:var(--radius-sm);font-family:var(--font-body);width:100%;outline:none;">
+        </div>
+        <div class="form-group"><label>Top N shown publicly</label>
+          <input type="number" value="20" style="padding:10px 14px;border:1.5px solid var(--border-md);border-radius:var(--radius-sm);font-family:var(--font-body);width:100%;outline:none;">
+        </div>
+        <div class="form-group"><label>Badge for Top 3</label>
+          <select><option selected>🥇🥈🥉 Medal Emoji</option><option>Gold/Silver/Bronze Label</option><option>Custom Text</option></select>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="showToast('Leaderboard settings saved.')">Save Settings</button>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="admin-tab-content" id="section-settings">
+    <div class="admin-topbar"><h1>Platform Settings</h1></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+      <div class="panel">
+        <div class="panel-header"><h3>General Settings</h3></div>
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          ${[
+            ['Task Approval Required','All new tasks require admin approval before going live','true'],
+            ['User Verification','New users must verify university email','true'],
+            ['Registration Open','Allow new student registrations','true'],
+            ['Maintenance Mode','Put site in maintenance mode','false'],
+            ['Show Leaderboard','Display weekly leaderboard publicly','true'],
+            ['Allow File Uploads','Let users attach files to tasks','true'],
+          ].map(([l,d,v])=>`
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.8rem 0;border-bottom:1px solid var(--border);">
+              <div><div style="font-size:14px;font-weight:600;">${l}</div><div style="font-size:12px;color:#888;margin-top:2px;">${d}</div></div>
+              <label class="toggle-switch"><input type="checkbox" ${v==='true'?'checked':''} onchange="showToast('Setting updated.')"><span class="toggle-slider"></span></label>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="panel-header"><h3>Platform Info</h3></div>
+          <div class="form-group"><label>Platform Name</label><input type="text" value="SciQuest" style="padding:10px 14px;border:1.5px solid var(--border-md);border-radius:var(--radius-sm);font-family:var(--font-body);width:100%;outline:none;"></div>
+          <div class="form-group"><label>Admin Email</label><input type="email" value="admin@sciquest.pk" style="padding:10px 14px;border:1.5px solid var(--border-md);border-radius:var(--radius-sm);font-family:var(--font-body);width:100%;outline:none;"></div>
+          <div class="form-group"><label>Max Task Pay (PKR)</label><input type="number" value="50000" style="padding:10px 14px;border:1.5px solid var(--border-md);border-radius:var(--radius-sm);font-family:var(--font-body);width:100%;outline:none;"></div>
+          <div class="form-group"><label>Min Task Pay (PKR)</label><input type="number" value="100" style="padding:10px 14px;border:1.5px solid var(--border-md);border-radius:var(--radius-sm);font-family:var(--font-body);width:100%;outline:none;"></div>
+          <button class="btn-primary" onclick="showToast('Settings saved successfully.')">Save Changes</button>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><h3>Danger Zone</h3></div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <button class="btn-danger" onclick="if(confirm('Clear all pending tasks?')){showToast('Pending tasks cleared.','warning')}">🗑 Clear Pending Tasks</button>
+            <button class="btn-danger" onclick="if(confirm('Export user data?')){showToast('Export queued — check your email.','info')}">📤 Export All User Data</button>
+            <button class="btn-danger" onclick="if(confirm('This will reset all weekly scores NOW. Confirm?')){showToast('Leaderboard reset.','warning')}">⚠ Force Reset Leaderboard</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANNOUNCEMENTS -->
+  <div class="admin-tab-content" id="section-announcements">
+    <div class="admin-topbar"><h1>Announcements</h1></div>
+    <div class="panel" style="max-width:680px;">
+      <div class="panel-header"><h3>Send Platform Announcement</h3></div>
+      <div class="form-group"><label>Announcement Title</label><input type="text" placeholder="e.g. New feature: File sharing now available" style="padding:10px 14px;border:1.5px solid var(--border-md);border-radius:var(--radius-sm);font-family:var(--font-body);width:100%;outline:none;"></div>
+      <div class="form-group"><label>Message</label><textarea placeholder="Write your announcement here. This will appear as a notification to all users..." rows="5" style="width:100%;padding:10px 14px;border:1.5px solid var(--border-md);border-radius:var(--radius-sm);font-family:var(--font-body);resize:vertical;outline:none;"></textarea></div>
+      <div class="form-group"><label>Target Audience</label>
+        <select style="padding:10px 14px;border:1.5px solid var(--border-md);border-radius:var(--radius-sm);font-family:var(--font-body);width:100%;outline:none;">
+          <option>All Users</option><option>Task Posters Only</option><option>Task Helpers Only</option><option>Specific Field</option><option>Specific University</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Type</label>
+        <select style="padding:10px 14px;border:1.5px solid var(--border-md);border-radius:var(--radius-sm);font-family:var(--font-body);width:100%;outline:none;">
+          <option>Info</option><option>Success</option><option>Warning</option><option>Urgent</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="showToast('Announcement sent to 1,842 users! ✓')">Send Announcement 📢</button>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h3>Past Announcements</h3></div>
+      <table class="data-table">
+        <thead><tr><th>Title</th><th>Type</th><th>Audience</th><th>Sent</th><th>Read</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>Welcome to SciQuest Beta!</td><td><span class="tag tag-info">Info</span></td><td>All Users</td><td>15 Jul 2025</td><td>1,284 / 1,842</td><td><button class="action-btn view">View</button></td></tr>
+          <tr><td>Leaderboard system now live</td><td><span class="tag tag-success">Success</span></td><td>All Users</td><td>10 Jul 2025</td><td>998 / 1,320</td><td><button class="action-btn view">View</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ANALYTICS -->
+  <div class="admin-tab-content" id="section-analytics">
+    <div class="admin-topbar"><h1>Analytics</h1></div>
+    <div class="admin-metrics">
+      <div class="admin-metric" style="--am-color:#52b788;"><div class="am-label">Most Active Field</div><div class="am-value" style="font-size:1.3rem;">Parasitology</div><div class="am-sub">34% of all tasks</div></div>
+      <div class="admin-metric" style="--am-color:#2563eb;"><div class="am-label">Top University</div><div class="am-value" style="font-size:1.3rem;">UOP</div><div class="am-sub">428 students</div></div>
+      <div class="admin-metric" style="--am-color:#d97706;"><div class="am-label">Avg Task Pay</div><div class="am-value">₨2,150</div><div class="am-sub">across all types</div></div>
+      <div class="admin-metric" style="--am-color:#7c3aed;"><div class="am-label">Completion Rate</div><div class="am-value">74%</div><div class="am-sub">of accepted tasks</div></div>
+    </div>
+    <div class="stat-grid-2">
+      <div class="panel"><div class="panel-header"><h3>Tasks by Type</h3></div>
+        <div style="display:flex;flex-direction:column;gap:0.7rem;">
+          ${[['Thesis Writing',38,'#4f46e5'],['Survey Filling',24,'#d97706'],['Presentation',18,'#9d174d'],['Synopsis',12,'#166534'],['Data Analysis',5,'#0891b2'],['Literature Review',3,'#7c3aed']].map(([l,p,c])=>`
+            <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;"><span>${l}</span><span style="font-weight:600;">${p}%</span></div><div style="height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden;"><div style="height:100%;width:${p}%;background:${c};border-radius:4px;transition:width 1s;"></div></div></div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="panel"><div class="panel-header"><h3>Top 5 Universities</h3></div>
+        <table class="data-table"><thead><tr><th>#</th><th>University</th><th>Students</th><th>Tasks</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>University of Peshawar</td><td>428</td><td>156</td></tr>
+          <tr><td>2</td><td>Quaid-i-Azam University</td><td>312</td><td>98</td></tr>
+          <tr><td>3</td><td>KMU</td><td>284</td><td>87</td></tr>
+          <tr><td>4</td><td>University of Punjab</td><td>198</td><td>64</td></tr>
+          <tr><td>5</td><td>COMSATS University</td><td>145</td><td>41</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIELDS -->
+  <div class="admin-tab-content" id="section-fields">
+    <div class="admin-topbar"><h1>Fields & Categories</h1></div>
+    <div class="stat-grid-2">
+      <div class="panel"><div class="panel-header"><h3>Academic Fields</h3><button class="btn-primary btn-sm" onclick="showToast('Field added.')">+ Add Field</button></div>
+        <table class="data-table"><thead><tr><th>Field</th><th>Tasks</th><th>Users</th><th>Visible</th></tr></thead>
+        <tbody>
+          ${SQ.fields.map(f=>`<tr><td>${f}</td><td>${Math.floor(Math.random()*50+5)}</td><td>${Math.floor(Math.random()*200+20)}</td><td><label class="toggle-switch"><input type="checkbox" checked onchange="showToast('Field visibility updated.')"><span class="toggle-slider"></span></label></td></tr>`).join('')}
+        </tbody></table>
+      </div>
+      <div class="panel"><div class="panel-header"><h3>Task Types</h3><button class="btn-primary btn-sm" onclick="showToast('Type added.')">+ Add Type</button></div>
+        <table class="data-table"><thead><tr><th>Type</th><th>Tasks</th><th>Visible</th></tr></thead>
+        <tbody>
+          ${Object.entries(SQ.taskTypes).map(([k,v])=>`<tr><td>${v}</td><td>${Math.floor(Math.random()*80+10)}</td><td><label class="toggle-switch"><input type="checkbox" checked onchange="showToast('Type visibility updated.')"><span class="toggle-slider"></span></label></td></tr>`).join('')}
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- PAYMENTS APPROVAL -->
+  <div class="admin-tab-content" id="section-payments">
+    <div class="admin-topbar">
+      <h1>Payment Approvals</h1>
+      <div class="admin-topbar-right">
+        <span id="pendingPayCount" class="tag tag-warning">0 pending</span>
+        <button class="btn-primary btn-sm" onclick="approveAllPayments()">✓ Approve All Pending</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h3>Pending Payments — Awaiting Your Approval</h3></div>
+      <div id="pendingPaymentsList"><div style="text-align:center;padding:2rem;color:#888;">No pending payments.</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h3>All Transactions</h3></div>
+      <div id="allPaymentsList"></div>
+    </div>
+  </div>
+</div><!-- end admin-main -->
+
+<script src="js/app.js"></script>
+<script src="js/main.js"></script>
+<script>
+// Admin access check
+document.addEventListener('DOMContentLoaded', ()=>{
+  const user = JSON.parse(localStorage.getItem('sq_user')||'null');
+  if(!user || user.role !== 'admin') {
+    document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:var(--font-body);flex-direction:column;gap:1rem;"><div style="font-size:3rem;">🔒</div><h2 style="font-family:var(--font-display);color:var(--leaf);">Admin Access Only</h2><p style="color:#888;">You must be signed in as an admin to view this page.</p><a href="login.html" style="background:var(--leaf);color:white;padding:10px 24px;border-radius:24px;font-weight:600;text-decoration:none;font-family:var(--font-body);">Sign in as Admin →</a></div>`;
+    return;
+  }
+
+  document.getElementById('lastUpdated').textContent = new Date().toLocaleString('en-PK'); loadAdminPayments();
+
+  // Recent signups
+  const signups = [
+    {name:'Fatima Rao', field:'Parasitology', uni:'UOP', joined:'Today'},
+    {name:'Hamza Niazi', field:'Zoology', uni:'UAP', joined:'Today'},
+    {name:'Sara Zaidi', field:'Biochemistry', uni:'KMU', joined:'Yesterday'},
+    {name:'Omar Qureshi', field:'Microbiology', uni:'QAU', joined:'2 days ago'},
+    {name:'Nida Ahmed', field:'Genetics', uni:'UAF', joined:'3 days ago'},
+  ];
+  document.getElementById('recentSignups').innerHTML = signups.map((s,i)=>`
+    <tr><td><div style="font-weight:600;font-size:13px;">${s.name}</div></td><td>${s.field}</td><td>${s.uni}</td><td style="color:#888;font-size:12px;">${s.joined}</td>
+    <td><div class="action-btns"><button class="action-btn approve">Verify</button><button class="action-btn view">View</button></div></td></tr>
+  `).join('');
+
+  // Pending tasks
+  document.getElementById('pendingTasks').innerHTML = SQ.tasks.slice(0,5).map(t=>`
+    <tr><td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.title.slice(0,35)}...</td>
+    <td><span class="task-type-badge ${SQ.badgeClass[t.type]}">${SQ.taskTypes[t.type]}</span></td>
+    <td style="font-weight:600;color:var(--moss);">₨${t.pay.toLocaleString()}</td>
+    <td><div class="action-btns"><button class="action-btn approve" onclick="showToast('Task approved and published.')">✓ Approve</button><button class="action-btn reject" onclick="showToast('Task rejected.','warning')">✗ Reject</button></div></td></tr>
+  `).join('');
+
+  // All tasks admin table
+  document.getElementById('adminTasksBody').innerHTML = SQ.tasks.map(t=>`
+    <tr><td style="color:#888;font-size:12px;">#${t.id}</td>
+    <td style="max-width:200px;"><div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.title}</div></td>
+    <td><span class="task-type-badge ${SQ.badgeClass[t.type]}" style="font-size:10px;">${SQ.taskTypes[t.type]}</span></td>
+    <td><div style="display:flex;align-items:center;gap:6px;"><div class="avatar avatar-xs" style="background:${t.poster.color}">${t.poster.initials}</div><span style="font-size:12px;">${t.poster.name}</span></div></td>
+    <td style="font-weight:700;color:var(--moss);">₨${t.pay.toLocaleString()}</td>
+    <td><span class="tag tag-success">Open</span></td>
+    <td style="color:#888;font-size:12px;">${t.posted}</td>
+    <td><div class="action-btns">
+      <button class="action-btn view">View</button>
+      <button class="action-btn reject" onclick="showToast('Task removed.','warning')">Remove</button>
+      <button class="action-btn warn" onclick="showToast('User warned.')">Warn</button>
+    </div></td></tr>
+  `).join('');
+
+  // Users table
+  document.getElementById('usersTableBody').innerHTML = SQ.leaders.map(l=>`
+    <tr><td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-xs" style="background:${l.color}">${l.initials}</div><div><div style="font-size:13px;font-weight:600;">${l.name}</div><div style="font-size:11px;color:#888;">${l.name.toLowerCase().replace(' ','.')}@sciquest.pk</div></div></div></td>
+    <td>${l.field}</td><td>${l.university}</td>
+    <td><span class="tag tag-success">${l.tasks} done</span></td>
+    <td><span class="stars" style="font-size:11px;">★</span> ${l.rating}</td>
+    <td style="font-size:12px;color:#888;">Jul 2025</td>
+    <td><span class="tag tag-success">Active</span></td>
+    <td><div class="action-btns">
+      <button class="action-btn view" onclick="showToast('Viewing user profile...')">View</button>
+      <button class="action-btn warn" onclick="showToast('Warning sent to user.','warning')">Warn</button>
+      <button class="action-btn ban" onclick="if(confirm('Ban this user?')){showToast('User banned.','error')}">Ban</button>
+    </div></td></tr>
+  `).join('');
+
+  // Leaderboard admin
+  document.getElementById('lbAdminBody').innerHTML = SQ.leaders.map(l=>`
+    <tr><td><strong>${l.rank}</strong></td>
+    <td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-xs" style="background:${l.color}">${l.initials}</div>${l.name}</div></td>
+    <td>${l.field}</td><td>${l.university}</td>
+    <td><strong>${l.tasks}</strong></td><td>★ ${l.rating}</td>
+    <td>${l.badge||'—'}</td>
+    <td><div style="display:flex;gap:4px;"><input type="number" value="${l.rank}" min="1" max="20" style="width:50px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-family:var(--font-body);font-size:13px;outline:none;"><button class="action-btn view" onclick="showToast('Rank override applied.')">Set</button></div></td></tr>
+  `).join('');
+
+  // Activity chart
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const vals = [12,18,8,24,30,15,22];
+  const max = Math.max(...vals);
+  document.getElementById('activityChart').innerHTML = vals.map((v,i)=>`
+    <div class="chart-bar-wrap">
+      <div class="chart-bar" style="height:${(v/max)*100}%;background:${v===max?'var(--leaf)':'var(--fern)'};"></div>
+      <div class="chart-bar-label">${v}</div>
+      <div class="chart-bar-label">${days[i]}</div>
+    </div>
+  `).join('');
+});
+
+function showAdminSection(id) {
+  document.querySelectorAll('.admin-tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.admin-nav-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('section-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+function loadAdminPayments() {
+  const allPays = JSON.parse(localStorage.getItem('sq_payments')||'[]');
+  const pending = allPays.filter(p=>p.status==='pending');
+  document.getElementById('payBadge').textContent = pending.length;
+  document.getElementById('pendingPayCount').textContent = pending.length+' pending';
+  
+  const renderRow = (p,idx) => `
+    <tr>
+      <td style="font-size:12px;color:#888;">#${idx+1}</td>
+      <td><div style="font-size:13px;font-weight:600;">${p.title||'Payment'}</div><div style="font-size:11px;color:#888;">${p.userId||'Unknown user'}</div></td>
+      <td><span class="tag tag-neutral">${p.type||'deposit'}</span></td>
+      <td style="font-weight:700;color:var(--moss);">₨${(p.amount||0).toLocaleString()}</td>
+      <td>${p.method||'—'}</td>
+      <td style="font-size:12px;color:#888;">${p.date||'—'}</td>
+      <td><span class="tx-status ts-${p.status}">${p.status==='approved'?'✓ Approved':p.status==='pending'?'⏳ Pending':'✗ Rejected'}</span></td>
+      <td><div class="action-btns">
+        ${p.status==='pending'?`<button class="action-btn approve" onclick="approvePayment('${p.id}')">✓ Approve</button><button class="action-btn reject" onclick="rejectPayment('${p.id}')">✗ Reject</button>`:'<span style="font-size:12px;color:#aaa;">'+p.status+'</span>'}
+      </div></td>
+    </tr>`;
+
+  const pendDiv = document.getElementById('pendingPaymentsList');
+  const allDiv  = document.getElementById('allPaymentsList');
+  
+  if (!pending.length) {
+    pendDiv.innerHTML = '<div style="text-align:center;padding:2rem;color:#888;font-size:14px;">✓ No pending payments. All clear!</div>';
+  } else {
+    pendDiv.innerHTML = `<table class="data-table"><thead><tr><th>#</th><th>Description</th><th>Type</th><th>Amount</th><th>Method</th><th>Submitted</th><th>Status</th><th>Actions</th></tr></thead><tbody>${pending.map(renderRow).join('')}</tbody></table>`;
+  }
+  
+  allDiv.innerHTML = allPays.length ? `<table class="data-table"><thead><tr><th>#</th><th>Description</th><th>Type</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>${allPays.map(renderRow).join('')}</tbody></table>` : '<div style="text-align:center;padding:2rem;color:#888;">No transactions yet.</div>';
+}
+
+function approvePayment(id) {
+  const pays = JSON.parse(localStorage.getItem('sq_payments')||'[]');
+  const p = pays.find(x=>x.id===id);
+  if(p) { p.status='approved'; localStorage.setItem('sq_payments',JSON.stringify(pays)); loadAdminPayments(); showToast('Payment approved and funds released.'); }
+}
+function rejectPayment(id) {
+  if(!confirm('Reject this payment?')) return;
+  const pays = JSON.parse(localStorage.getItem('sq_payments')||'[]');
+  const p = pays.find(x=>x.id===id);
+  if(p) { p.status='rejected'; localStorage.setItem('sq_payments',JSON.stringify(pays)); loadAdminPayments(); showToast('Payment rejected.','warning'); }
+}
+function approveAllPayments() {
+  if(!confirm('Approve all pending payments?')) return;
+  const pays = JSON.parse(localStorage.getItem('sq_payments')||'[]');
+  pays.forEach(p=>{ if(p.status==='pending') p.status='approved'; });
+  localStorage.setItem('sq_payments',JSON.stringify(pays));
+  loadAdminPayments();
+  showToast('All pending payments approved!');
+}
+
+function filterAdminTasks(q) {
+  // filter logic would go here in a real app
+}
+</script>
+</body>
+</html>

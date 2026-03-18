@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wallet & Payments — SciQuest</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/app.css">
+<style>
+.wallet-body{max-width:1100px;margin:0 auto;padding:2rem 1.5rem 5rem;}
+.wallet-grid{display:grid;grid-template-columns:1fr 360px;gap:2rem;}
+.balance-card{background:linear-gradient(135deg,#0a1f11 0%,#1a4a2e 60%,#2d6a4f 100%);border-radius:var(--radius-xl);padding:2rem;color:white;position:relative;overflow:hidden;margin-bottom:1.5rem;}
+.balance-card::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;border-radius:50%;background:rgba(82,183,136,.1);}
+.bal-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:.3rem;}
+.bal-amount{font-family:var(--font-display);font-size:3rem;color:white;line-height:1;position:relative;z-index:1;}
+.bal-sub{color:rgba(255,255,255,.55);font-size:13px;margin-top:.3rem;position:relative;z-index:1;}
+.bal-stats{display:flex;gap:.8rem;margin-top:1.4rem;position:relative;z-index:1;flex-wrap:wrap;}
+.bal-stat{background:rgba(255,255,255,.1);border-radius:10px;padding:.8rem 1rem;flex:1;min-width:100px;backdrop-filter:blur(4px);}
+.bal-stat-n{font-family:var(--font-display);font-size:1.2rem;color:white;}
+.bal-stat-l{font-size:10px;color:rgba(255,255,255,.55);margin-top:2px;text-transform:uppercase;letter-spacing:.5px;}
+.bal-actions{display:flex;gap:8px;margin-top:1.4rem;position:relative;z-index:1;flex-wrap:wrap;}
+.bal-btn{padding:10px 20px;border-radius:22px;font-size:13px;font-weight:700;font-family:var(--font-body);cursor:pointer;border:none;transition:all .2s;}
+.bal-btn-green{background:var(--fern);color:var(--leaf);}
+.bal-btn-green:hover{background:#74c99f;}
+.bal-btn-out{background:transparent;color:white;border:1.5px solid rgba(255,255,255,.3);}
+.bal-btn-out:hover{background:rgba(255,255,255,.1);}
+.pm-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:1.5rem;overflow-x:auto;}
+.pm-tab{padding:10px 20px;font-size:14px;font-weight:600;color:#888;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .2s;font-family:var(--font-body);background:none;border-top:none;border-left:none;border-right:none;}
+.pm-tab.active{color:var(--leaf);border-bottom-color:var(--leaf);}
+.pm-panel{display:none;}
+.pm-panel.active{display:block;}
+.pay-card{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:1.8rem;margin-bottom:1rem;}
+.pay-card h3{font-family:var(--font-display);font-size:1.15rem;color:var(--leaf);margin-bottom:1.2rem;}
+.method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1.3rem;}
+.mcard{border:2px solid var(--border);border-radius:var(--radius-md);padding:1rem .8rem;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:white;}
+.mcard:hover{border-color:var(--fern);}
+.mcard.sel{border-width:2.5px;}
+.mcard.sel::after{content:'✓';position:absolute;top:6px;right:8px;font-size:11px;font-weight:800;}
+.mcard-ep.sel{border-color:#2e7d32;background:#e8f5e9;}
+.mcard-ep.sel::after{color:#2e7d32;}
+.mcard-jc.sel{border-color:#e65100;background:#fff3e0;}
+.mcard-jc.sel::after{color:#e65100;}
+.mcard-cc.sel{border-color:#1565c0;background:#e3f2fd;}
+.mcard-cc.sel::after{color:#1565c0;}
+.mcard-logo{font-size:1.8rem;margin-bottom:.4rem;}
+.mcard-name{font-size:13px;font-weight:700;color:var(--ink);}
+.mcard-sub{font-size:10px;color:#888;margin-top:1px;}
+.fi{padding:11px 14px;border:1.5px solid var(--border-md);border-radius:var(--radius-sm);font-family:var(--font-body);width:100%;font-size:14px;outline:none;transition:border-color .2s;background:white;}
+.fi:focus{border-color:var(--fern);box-shadow:0 0 0 3px rgba(82,183,136,.1);}
+.fi-wrap{position:relative;}
+.fi-wrap .fi-sym{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:.95rem;font-weight:700;color:var(--moss);}
+.fi-wrap .fi{padding-left:32px;}
+.qa-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:1.1rem;}
+.qa{padding:6px 15px;border-radius:20px;background:var(--sand);color:#555;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);transition:all .18s;font-family:var(--font-body);}
+.qa:hover,.qa.on{background:var(--leaf);color:white;border-color:var(--leaf);}
+.approval-notice{background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius-md);padding:1rem 1.2rem;margin-bottom:1.2rem;display:flex;gap:10px;align-items:flex-start;}
+.approval-notice strong{color:#92400e;font-size:13px;}
+.approval-notice p{color:#78350f;font-size:12px;margin-top:2px;line-height:1.6;}
+.card-stack input{border-radius:0;margin-bottom:0;border-bottom:none;}
+.card-stack input:first-child{border-radius:var(--radius-sm) var(--radius-sm) 0 0;}
+.card-stack .card-split{display:grid;grid-template-columns:1fr 1fr;}
+.card-stack .card-split input:first-child{border-radius:0 0 0 var(--radius-sm);border-right:none;border-bottom:1.5px solid var(--border-md);}
+.card-stack .card-split input:last-child{border-radius:0 0 var(--radius-sm) 0;border-bottom:1.5px solid var(--border-md);}
+.ssl-note{display:flex;align-items:center;gap:6px;font-size:11px;color:#888;margin-top:.6rem;}
+.tx-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
+.tx-item:last-child{border-bottom:none;}
+.tx-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.tx-right{text-align:right;}
+.tx-amt{font-weight:700;font-size:14px;}
+.tx-status{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;display:inline-block;margin-top:2px;}
+.ts-approved{background:#f0fdf4;color:#166534;}
+.ts-pending{background:#fef3c7;color:#92400e;}
+.ts-rejected{background:#fef2f2;color:#991b1b;}
+.processing-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;align-items:center;justify-content:center;}
+.processing-overlay.show{display:flex;}
+.proc-box{background:white;border-radius:var(--radius-xl);padding:2.5rem;text-align:center;max-width:340px;width:90%;}
+.spin{width:54px;height:54px;border:4px solid var(--mist);border-top-color:var(--fern);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1.2rem;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sidebar-box{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:1.3rem;margin-bottom:1rem;}
+.sidebar-box h4{font-size:14px;font-weight:700;margin-bottom:.9rem;color:var(--ink);}
+@media(max-width:860px){.wallet-grid{grid-template-columns:1fr;}.method-grid{grid-template-columns:1fr 1fr 1fr;}}
+@media(max-width:480px){.method-grid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<div class="particles" id="particles"></div>
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">Sci<span>Quest</span></a>
+    <div class="nav-center">
+      <a href="browse.html" class="nav-link">Browse Tasks</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+    </div>
+    <div class="nav-right" id="navRight">
+      <a href="login.html" class="btn-ghost">Sign In</a>
+      <a href="register.html" class="btn-nav-cta">Join Free</a>
+      <button class="hamburger" id="hamburger">&#9776;</button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobileMenu"><a href="dashboard.html">Dashboard</a></div>
+</nav>
+
+<div class="main-content">
+  <div class="page-header">
+    <h1>💳 Wallet &amp; Payments</h1>
+    <p>All payments require admin approval before processing. Escrow protects every transaction.</p>
+  </div>
+
+  <div class="wallet-body">
+    <div class="balance-card">
+      <div class="bal-label">Available Balance</div>
+      <div class="bal-amount">₨<span id="balAmt">0</span></div>
+      <div class="bal-sub" id="balVerified">Sign in to view your balance</div>
+      <div class="bal-stats">
+        <div class="bal-stat"><div class="bal-stat-n" id="statEarned">₨0</div><div class="bal-stat-l">Total Earned</div></div>
+        <div class="bal-stat"><div class="bal-stat-n" id="statSpent">₨0</div><div class="bal-stat-l">Total Spent</div></div>
+        <div class="bal-stat"><div class="bal-stat-n" id="statPending">₨0</div><div class="bal-stat-l">Pending Approval</div></div>
+        <div class="bal-stat"><div class="bal-stat-n" id="statWithdrawn">₨0</div><div class="bal-stat-l">Withdrawn</div></div>
+      </div>
+      <div class="bal-actions">
+        <button class="bal-btn bal-btn-green" onclick="switchTab('deposit')">+ Add Funds</button>
+        <button class="bal-btn bal-btn-out" onclick="switchTab('withdraw')">↑ Withdraw</button>
+        <button class="bal-btn bal-btn-out" onclick="switchTab('history')">📄 History</button>
+      </div>
+    </div>
+
+    <div class="wallet-grid">
+      <main>
+        <div class="pm-tabs">
+          <button class="pm-tab active" id="tab-deposit" onclick="switchTab('deposit')">💰 Add Funds</button>
+          <button class="pm-tab" id="tab-pay" onclick="switchTab('pay')">📤 Pay for Task</button>
+          <button class="pm-tab" id="tab-withdraw" onclick="switchTab('withdraw')">🏦 Withdraw</button>
+          <button class="pm-tab" id="tab-history" onclick="switchTab('history')">📋 History</button>
+        </div>
+
+        <!-- DEPOSIT -->
+        <div class="pm-panel active" id="panel-deposit">
+          <div class="pay-card">
+            <h3>Add Money to Wallet</h3>
+            <div class="approval-notice">
+              <span style="font-size:1.3rem;">⚠️</span>
+              <div><strong>Admin Approval Required</strong><p>All deposits are reviewed by our admin team before funds appear in your wallet. Typical approval time: 1–4 hours during business hours. You will receive a notification once approved.</p></div>
+            </div>
+            <div style="font-size:13px;font-weight:600;color:#555;margin-bottom:.7rem;">Select Payment Method</div>
+            <div class="method-grid">
+              <div class="mcard mcard-ep sel" id="dm-ep" onclick="selMethod('deposit','ep')"><div class="mcard-logo">💚</div><div class="mcard-name">EasyPaisa</div><div class="mcard-sub">Mobile wallet</div></div>
+              <div class="mcard mcard-jc"     id="dm-jc" onclick="selMethod('deposit','jc')"><div class="mcard-logo">🧡</div><div class="mcard-name">JazzCash</div><div class="mcard-sub">Mobile wallet</div></div>
+              <div class="mcard mcard-cc"     id="dm-cc" onclick="selMethod('deposit','cc')"><div class="mcard-logo">💳</div><div class="mcard-name">Debit/Credit</div><div class="mcard-sub">Visa · Mastercard</div></div>
+            </div>
+            <label style="font-size:13px;font-weight:600;color:#555;display:block;margin-bottom:.5rem;">Amount (PKR)</label>
+            <div class="fi-wrap" style="margin-bottom:.8rem;">
+              <span class="fi-sym">₨</span>
+              <input type="number" class="fi" id="depAmt" placeholder="Enter amount" min="100" max="100000" oninput="updDepSummary()">
+            </div>
+            <div class="qa-row">
+              <button class="qa" onclick="setDep(500)">₨500</button>
+              <button class="qa" onclick="setDep(1000)">₨1,000</button>
+              <button class="qa" onclick="setDep(2000)">₨2,000</button>
+              <button class="qa" onclick="setDep(5000)">₨5,000</button>
+              <button class="qa" onclick="setDep(10000)">₨10,000</button>
+            </div>
+
+            <!-- EP FORM -->
+            <div id="fep">
+              <label class="fi" style="padding:0;border:none;font-size:13px;font-weight:600;color:#555;margin-bottom:.5rem;display:block;">EasyPaisa Mobile Number</label>
+              <input class="fi" type="tel" id="ep-num" placeholder="Enter your EasyPaisa number (03XXXXXXXXX)" oninput="valPhone(this,'ep')">
+              <div style="font-size:12px;margin-top:4px;" id="ep-hint"></div>
+              <div id="ep-otp-row" style="display:none;margin-top:.8rem;">
+                <div style="background:#e8f5e9;border:1px solid #a5d6a7;border-radius:var(--radius-sm);padding:.8rem 1rem;margin-bottom:.8rem;font-size:13px;color:#2e7d32;">📱 OTP sent to your EasyPaisa number. Enter it below.</div>
+                <input class="fi" type="text" id="ep-otp" maxlength="6" placeholder="6-digit OTP" style="letter-spacing:.3rem;font-weight:700;text-align:center;" oninput="this.value=this.value.replace(/\D/g,'')">
+              </div>
+              <div id="dep-ep-summary" style="display:none;background:var(--mist);border-radius:var(--radius-sm);padding:.8rem 1rem;margin-top:.8rem;font-size:13px;color:var(--moss);line-height:1.7;"></div>
+              <button class="btn-primary w-full" style="margin-top:1rem;padding:13px;font-size:14px;" id="ep-btn" onclick="doEP()"><span id="ep-btn-txt">Request OTP →</span></button>
+            </div>
+
+            <!-- JC FORM -->
+            <div id="fjc" style="display:none;">
+              <label style="font-size:13px;font-weight:600;color:#555;display:block;margin-bottom:.5rem;">JazzCash Mobile Number</label>
+              <input class="fi" type="tel" id="jc-num" placeholder="Enter your JazzCash number (03XXXXXXXXX)" oninput="valPhone(this,'jc')">
+              <div style="font-size:12px;margin-top:4px;" id="jc-hint"></div>
+              <label style="font-size:13px;font-weight:600;color:#555;display:block;margin:.8rem 0 .4rem;">JazzCash MPIN</label>
+              <input class="fi" type="password" id="jc-pin" maxlength="6" placeholder="Your 6-digit MPIN" style="letter-spacing:.2rem;" oninput="this.value=this.value.replace(/\D/g,'')">
+              <div id="dep-jc-summary" style="display:none;background:#fff3e0;border:1px solid #ffcc80;border-radius:var(--radius-sm);padding:.8rem 1rem;margin-top:.8rem;font-size:13px;color:#e65100;line-height:1.7;"></div>
+              <button class="btn-primary w-full" style="margin-top:1rem;padding:13px;font-size:14px;background:#e65100;" onclick="doJC()">Pay via JazzCash →</button>
+            </div>
+
+            <!-- CARD FORM -->
+            <div id="fcc" style="display:none;">
+              <label style="font-size:13px;font-weight:600;color:#555;display:block;margin-bottom:.5rem;">Card Details</label>
+              <div class="card-stack">
+                <input class="fi" type="text" id="cc-name" placeholder="Cardholder name">
+                <div style="position:relative;">
+                  <input class="fi" type="text" id="cc-num" maxlength="19" placeholder="Card number" oninput="fmtCard(this)" style="border-radius:0;border-bottom:none;padding-right:50px;">
+                  <span id="cc-net" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:1rem;"></span>
+                </div>
+                <div class="card-split">
+                  <input class="fi" type="text" id="cc-exp" maxlength="5" placeholder="MM/YY" oninput="fmtExp(this)">
+                  <input class="fi" type="password" id="cc-cvv" maxlength="3" placeholder="CVV" oninput="this.value=this.value.replace(/\D/g,'')">
+                </div>
+              </div>
+              <div class="ssl-note">🔒 256-bit SSL · PCI DSS compliant · Card data is never stored on our servers</div>
+              <div id="dep-cc-summary" style="display:none;background:#e3f2fd;border:1px solid #90caf9;border-radius:var(--radius-sm);padding:.8rem 1rem;margin-top:.8rem;font-size:13px;color:#1565c0;line-height:1.7;"></div>
+              <button class="btn-primary w-full" style="margin-top:1rem;padding:13px;font-size:14px;background:#1565c0;" onclick="doCC()">Pay Securely →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAY FOR TASK -->
+        <div class="pm-panel" id="panel-pay">
+          <div class="pay-card">
+            <h3>Pay for a Task (Escrow)</h3>
+            <p style="font-size:14px;color:#666;margin-bottom:1.2rem;">Funds are deposited to SciQuest escrow. Admin approves the deposit, then holds it until you mark the task complete. The helper is paid automatically.</p>
+            <div class="approval-notice">
+              <span style="font-size:1.3rem;">🔒</span>
+              <div><strong>Payment requires admin approval</strong><p>Once you submit, our admin reviews the payment. After approval, funds are locked in escrow. You only pay when satisfied with the work.</p></div>
+            </div>
+            <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-bottom:.8rem;">Your Active Tasks</div>
+            <div id="payTaskList" style="margin-bottom:1.3rem;"></div>
+            <div style="font-size:13px;font-weight:600;color:#555;margin-bottom:.7rem;">Payment Method</div>
+            <div class="method-grid">
+              <div class="mcard mcard-ep sel" id="pm-ep" onclick="selMethod('pay','ep')"><div class="mcard-logo">💚</div><div class="mcard-name">EasyPaisa</div></div>
+              <div class="mcard mcard-jc"     id="pm-jc" onclick="selMethod('pay','jc')"><div class="mcard-logo">🧡</div><div class="mcard-name">JazzCash</div></div>
+              <div class="mcard mcard-cc"     id="pm-cc" onclick="selMethod('pay','cc')"><div class="mcard-logo">💳</div><div class="mcard-name">Card</div></div>
+            </div>
+            <button class="btn-primary w-full" style="padding:13px;font-size:15px;" onclick="doTaskPay()">🔒 Submit to Escrow (Admin Approval) →</button>
+          </div>
+        </div>
+
+        <!-- WITHDRAW -->
+        <div class="pm-panel" id="panel-withdraw">
+          <div class="pay-card">
+            <h3>Withdraw Earnings</h3>
+            <div class="approval-notice">
+              <span style="font-size:1.3rem;">⚠️</span>
+              <div><strong>Withdrawal requires admin approval</strong><p>Submit your withdrawal request. Admin will verify and release funds within 2–12 hours on business days.</p></div>
+            </div>
+            <div style="background:var(--mist);border-radius:var(--radius-md);padding:1rem;margin-bottom:1.3rem;display:flex;align-items:center;gap:12px;">
+              <span style="font-size:1.8rem;">💰</span>
+              <div><div style="font-size:13px;color:var(--moss);font-weight:600;">Available</div><div style="font-family:var(--font-display);font-size:1.8rem;color:var(--leaf);">₨<span id="wdAvail">0</span></div></div>
+            </div>
+            <div style="font-size:13px;font-weight:600;color:#555;margin-bottom:.7rem;">Withdraw To</div>
+            <div class="method-grid">
+              <div class="mcard mcard-ep sel" id="wm-ep" onclick="selMethod('wd','ep')"><div class="mcard-logo">💚</div><div class="mcard-name">EasyPaisa</div><div class="mcard-sub">Instant</div></div>
+              <div class="mcard mcard-jc"     id="wm-jc" onclick="selMethod('wd','jc')"><div class="mcard-logo">🧡</div><div class="mcard-name">JazzCash</div><div class="mcard-sub">Instant</div></div>
+              <div class="mcard"              id="wm-bk" onclick="selMethod('wd','bk')" style="border-color:var(--border);"><div class="mcard-logo">🏦</div><div class="mcard-name">Bank Transfer</div><div class="mcard-sub">1–2 days</div></div>
+            </div>
+            <div id="wf-ep">
+              <label style="font-size:13px;font-weight:600;color:#555;display:block;margin-bottom:.4rem;">EasyPaisa Number</label>
+              <input class="fi" type="tel" id="wd-ep-num" placeholder="Enter your EasyPaisa number (03XXXXXXXXX)">
+            </div>
+            <div id="wf-jc" style="display:none;">
+              <label style="font-size:13px;font-weight:600;color:#555;display:block;margin-bottom:.4rem;">JazzCash Number</label>
+              <input class="fi" type="tel" id="wd-jc-num" placeholder="Enter your JazzCash number (03XXXXXXXXX)">
+            </div>
+            <div id="wf-bk" style="display:none;">
+              <label style="font-size:13px;font-weight:600;color:#555;display:block;margin-bottom:.4rem;">Bank</label>
+              <select class="fi" style="margin-bottom:.6rem;"><option>HBL — Habib Bank</option><option>UBL — United Bank</option><option>MCB Bank</option><option>Bank Alfalah</option><option>Meezan Bank</option><option>Faysal Bank</option><option>Allied Bank</option><option>Standard Chartered</option><option>Silk Bank</option><option>JS Bank</option></select>
+              <input class="fi" type="text" placeholder="Account Title" style="margin-bottom:.6rem;">
+              <input class="fi" type="text" placeholder="Account Number / IBAN">
+            </div>
+            <label style="font-size:13px;font-weight:600;color:#555;display:block;margin:.8rem 0 .4rem;">Withdrawal Amount</label>
+            <div class="fi-wrap" style="margin-bottom:.6rem;">
+              <span class="fi-sym">₨</span>
+              <input type="number" class="fi" id="wd-amt" placeholder="Enter amount" oninput="updWdFee()">
+            </div>
+            <div id="wd-hint" style="font-size:12px;color:var(--moss);margin-bottom:.8rem;"></div>
+            <div class="qa-row">
+              <button class="qa" onclick="setWd(1000)">₨1,000</button>
+              <button class="qa" onclick="setWd(5000)">₨5,000</button>
+              <button class="qa" onclick="setWdAll()">All Available</button>
+            </div>
+            <button class="btn-primary w-full" style="padding:13px;font-size:15px;" onclick="doWithdraw()">Request Withdrawal (Pending Admin Approval) →</button>
+          </div>
+        </div>
+
+        <!-- HISTORY -->
+        <div class="pm-panel" id="panel-history">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
+            <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--ink);">Transaction History</h3>
+            <div style="display:flex;gap:8px;">
+              <select class="fi" style="padding:7px 12px;width:auto;font-size:13px;">
+                <option>All Types</option><option>Deposits</option><option>Payments</option><option>Withdrawals</option><option>Earnings</option>
+              </select>
+              <button class="btn-secondary btn-sm" onclick="showToast('Statement sent to your email.','info')">Export PDF</button>
+            </div>
+          </div>
+          <div style="background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:1rem;" id="txList">
+            <div style="text-align:center;padding:2rem;color:#888;font-size:14px;">Sign in to view your transaction history.</div>
+          </div>
+        </div>
+      </main>
+
+      <aside>
+        <div class="sidebar-box" style="background:#fffbeb;border-color:#fde68a;">
+          <h4 style="color:#92400e;">🔒 How Payments Work</h4>
+          <div style="font-size:13px;color:#78350f;line-height:1.75;">
+            <p style="margin-bottom:.6rem;"><strong>1. Submit payment</strong> via EasyPaisa, JazzCash, or card.</p>
+            <p style="margin-bottom:.6rem;"><strong>2. Admin reviews</strong> and approves within 1–4 hours.</p>
+            <p style="margin-bottom:.6rem;"><strong>3. Funds held in escrow</strong> — safe and secured.</p>
+            <p style="margin-bottom:.6rem;"><strong>4. Task delivered</strong> and you approve the work.</p>
+            <p><strong>5. Admin releases</strong> funds to helper's wallet instantly.</p>
+          </div>
+        </div>
+        <div class="sidebar-box">
+          <h4>📊 Payment Summary</h4>
+          <div id="paymentSummary" style="font-size:13px;"></div>
+        </div>
+        <div class="sidebar-box">
+          <h4>📞 Payment Support</h4>
+          <div style="font-size:13px;color:#555;line-height:1.8;">
+            <p><strong>Founder:</strong> Saeed Ullah</p>
+            <p><strong>Email:</strong> <a href="mailto:saeedullahbacha048@gmail.com" style="color:var(--moss);">saeedullahbacha048@gmail.com</a></p>
+            <p><strong>Fee:</strong> ₨0 (completely free)</p>
+            <p><strong>Min deposit:</strong> ₨100</p>
+            <p><strong>Disputes?</strong> <a href="contact.html" style="color:var(--moss);">Contact us →</a></p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<!-- PROCESSING OVERLAY -->
+<div class="processing-overlay" id="procOverlay">
+  <div class="proc-box">
+    <div class="spin" id="procSpin"></div>
+    <div id="procCheck" style="font-size:3rem;display:none;margin-bottom:.8rem;"></div>
+    <div style="font-family:var(--font-display);font-size:1.2rem;color:var(--leaf);margin-bottom:.5rem;" id="procTitle">Processing...</div>
+    <div style="font-size:13px;color:#888;line-height:1.6;" id="procSub">Please wait</div>
+    <button class="btn-primary w-full" id="procDone" style="display:none;margin-top:1.2rem;" onclick="closeProc()">Done →</button>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/main.js"></script>
+<script>
+let depMethod = 'ep', payMethod = 'ep', wdMethod = 'ep';
+let epOtpSent = false, selPayTaskId = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const user = store.get('sq_user');
+  if (!user) { showToast('Please sign in to view wallet.','warning'); setTimeout(()=>window.location.href='login.html',900); return; }
+
+  const pays = store.payments();
+  const bal = user.walletBalance || 0;
+  const earned = pays.filter(p=>p.type==='earn').reduce((s,p)=>s+p.amount,0);
+  const spent = pays.filter(p=>p.type==='pay').reduce((s,p)=>s+p.amount,0);
+  const pending = pays.filter(p=>p.status==='pending').reduce((s,p)=>s+p.amount,0);
+  const withdrawn = pays.filter(p=>p.type==='withdraw'&&p.status==='approved').reduce((s,p)=>s+p.amount,0);
+
+  document.getElementById('balAmt').textContent = (bal).toLocaleString();
+  document.getElementById('balVerified').textContent = `${user.name} · Account ${user.verified?'Verified ✓':'Pending Verification'}`;
+  document.getElementById('statEarned').textContent = '₨'+earned.toLocaleString();
+  document.getElementById('statSpent').textContent = '₨'+spent.toLocaleString();
+  document.getElementById('statPending').textContent = '₨'+pending.toLocaleString();
+  document.getElementById('statWithdrawn').textContent = '₨'+withdrawn.toLocaleString();
+  document.getElementById('wdAvail').textContent = bal.toLocaleString();
+
+  renderPaySummary(pays, bal);
+  renderTxHistory(pays);
+  renderPayTasks();
+
+  const urlTab = new URLSearchParams(window.location.search).get('tab');
+  if (urlTab) switchTab(urlTab);
+});
+
+function renderPaySummary(pays, bal) {
+  document.getElementById('paymentSummary').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:.4rem;">
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);"><span style="color:#888;">Balance</span><strong>₨${(bal).toLocaleString()}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);"><span style="color:#888;">Total Transactions</span><strong>${pays.length}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);"><span style="color:#888;">Approved</span><strong style="color:#16a34a;">${pays.filter(p=>p.status==='approved').length}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;"><span style="color:#888;">Pending</span><strong style="color:#d97706;">${pays.filter(p=>p.status==='pending').length}</strong></div>
+    </div>`;
+}
+
+function renderTxHistory(pays) {
+  const list = document.getElementById('txList');
+  if (!pays.length) { list.innerHTML='<div style="text-align:center;padding:2rem;color:#888;font-size:14px;">No transactions yet.</div>'; return; }
+  const icons = {deposit:'⬇', earn:'💰', pay:'📤', withdraw:'🏦'};
+  const bgs   = {deposit:'#f5f3ff', earn:'#f0fdf4', pay:'#eff6ff', withdraw:'#fef3c7'};
+  list.innerHTML = pays.slice().reverse().map(p=>`
+    <div class="tx-item">
+      <div class="tx-icon" style="background:${bgs[p.type]||'#f1f5f9'}">${icons[p.type]||'💳'}</div>
+      <div style="flex:1;"><div style="font-size:14px;font-weight:600;">${p.title}</div><div style="font-size:12px;color:#888;margin-top:2px;">${p.method} · ${p.date}</div></div>
+      <div class="tx-right">
+        <div class="tx-amt" style="color:${p.type==='earn'||p.type==='deposit'?'#16a34a':'#dc2626'};">${p.type==='earn'||p.type==='deposit'?'+':'-'}₨${p.amount.toLocaleString()}</div>
+        <div class="tx-status ts-${p.status}">${p.status==='approved'?'✓ Approved':p.status==='pending'?'⏳ Pending Admin':'✗ Rejected'}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderPayTasks() {
+  const user = store.get('sq_user');
+  const tasks = SQ.tasks.slice(0,3);
+  document.getElementById('payTaskList').innerHTML = tasks.map(t=>`
+    <div onclick="selPayTask(${t.id})" id="ptask-${t.id}" style="border:2px solid var(--border);border-radius:var(--radius-sm);padding:.9rem 1rem;cursor:pointer;transition:all .2s;margin-bottom:.6rem;background:white;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div style="flex:1;font-size:14px;font-weight:600;">${t.title.slice(0,55)}...</div>
+        <div style="font-family:var(--font-display);font-size:1.1rem;color:var(--moss);margin-left:.8rem;white-space:nowrap;">₨${t.pay.toLocaleString()}</div>
+      </div>
+      <div style="font-size:12px;color:#888;margin-top:4px;">${t.field} · ${t.poster.name}</div>
+    </div>`).join('');
+}
+
+function selPayTask(id) {
+  selPayTaskId = id;
+  document.querySelectorAll('[id^="ptask-"]').forEach(el=>{ el.style.border='2px solid var(--border)'; el.style.background='white'; });
+  document.getElementById('ptask-'+id).style.border='2px solid var(--leaf)';
+  document.getElementById('ptask-'+id).style.background='#f0f9f4';
+}
+
+/* ---- TABS ---- */
+function switchTab(name) {
+  document.querySelectorAll('.pm-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.pm-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+/* ---- METHOD SELECTION ---- */
+function selMethod(ctx, m) {
+  const prefixes = {deposit:['dm-ep','dm-jc','dm-cc'], pay:['pm-ep','pm-jc','pm-cc'], wd:['wm-ep','wm-jc','wm-bk']};
+  const classes  = {deposit:['mcard-ep','mcard-jc','mcard-cc'], pay:['mcard-ep','mcard-jc','mcard-cc'], wd:['mcard-ep','mcard-jc','']};
+  prefixes[ctx].forEach(id=>document.getElementById(id)?.classList.remove('sel'));
+  const map = {deposit:{ep:'dm-ep',jc:'dm-jc',cc:'dm-cc'}, pay:{ep:'pm-ep',jc:'pm-jc',cc:'pm-cc'}, wd:{ep:'wm-ep',jc:'wm-jc',bk:'wm-bk'}};
+  document.getElementById(map[ctx][m])?.classList.add('sel');
+  if(ctx==='deposit') { depMethod=m; ['fep','fjc','fcc'].forEach(id=>document.getElementById(id).style.display='none'); document.getElementById({ep:'fep',jc:'fjc',cc:'fcc'}[m]).style.display='block'; updDepSummary(); }
+  if(ctx==='pay') { payMethod=m; }
+  if(ctx==='wd')  { wdMethod=m; ['wf-ep','wf-jc','wf-bk'].forEach(id=>document.getElementById(id).style.display='none'); document.getElementById({ep:'wf-ep',jc:'wf-jc',bk:'wf-bk'}[m]).style.display='block'; }
+}
+
+/* ---- AMOUNT HELPERS ---- */
+function setDep(v) { document.getElementById('depAmt').value=v; updDepSummary(); }
+function setWd(v) { document.getElementById('wd-amt').value=v; updWdFee(); }
+function setWdAll() { const u=store.get('sq_user'); setWd(u?.walletBalance||0); }
+
+function updDepSummary() {
+  const v=parseFloat(document.getElementById('depAmt').value)||0;
+  const methods={ep:'EasyPaisa',jc:'JazzCash',cc:'Debit/Credit Card'};
+  const el=document.getElementById('dep-'+depMethod+'-summary');
+  if(el&&v>0) { el.style.display='block'; el.innerHTML=`<strong>Deposit Summary</strong><br>Amount: ₨${v.toLocaleString()}<br>Processing fee: ₨0 (Free)<br>Method: ${methods[depMethod]}<br>Status after submission: <em>Pending admin approval</em>`; }
+}
+
+function updWdFee() {
+  const v=parseFloat(document.getElementById('wd-amt').value)||0;
+  const user=store.get('sq_user');
+  const bal=user?.walletBalance||0;
+  const hint=document.getElementById('wd-hint');
+  if(v>bal){hint.style.color='#dc2626';hint.textContent='Exceeds available balance of ₨'+bal.toLocaleString();}
+  else if(v>0){hint.style.color='var(--moss)';hint.textContent='You receive: ₨'+v.toLocaleString()+' · Fee: ₨0';}
+  else hint.textContent='';
+}
+
+/* ---- PHONE VALIDATION ---- */
+function valPhone(inp,ctx) {
+  const hint=document.getElementById(ctx+'-hint');
+  const val=inp.value.replace(/[\s-]/g,'');
+  if(!val){hint.textContent='';return;}
+  if(!/^03\d{9}$/.test(val)){hint.style.color='#dc2626';hint.textContent='Enter a valid Pakistani number: 03XXXXXXXXX';}
+  else{hint.style.color='var(--moss)';hint.textContent='✓ Valid number';updDepSummary();}
+}
+
+/* ---- CARD HELPERS ---- */
+function fmtCard(inp){let v=inp.value.replace(/\D/g,'').slice(0,16);inp.value=v.replace(/(.{4})/g,'$1 ').trim();const ic=document.getElementById('cc-net');ic.textContent=v.startsWith('4')?'💙':v.startsWith('5')?'🔴':v.startsWith('62')?'🔶':'💳';updDepSummary();}
+function fmtExp(inp){let v=inp.value.replace(/\D/g,'');if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2,4);inp.value=v;}
+
+/* ---- PROCESS PAYMENTS ---- */
+function savePaymentAndNotify(type, title, amount, method, status='pending') {
+  const pay = { id:randomId(), type, title, amount, method, status, date: new Date().toLocaleString('en-PK'), userId:(store.get('sq_user')||{}).name||'Unknown' };
+  store.savePayment(pay);
+  store.addNotification({ type:'payment', icon:'💳', bg:'#fef3c7',
+    title: status==='pending'?'Payment pending admin approval':'Payment processed',
+    body:`₨${amount.toLocaleString()} via ${method} — ${status==='pending'?'awaiting admin review':'approved'}`,
+    link:'wallet.html'
+  });
+  updateNotifBadge();
+  return pay;
+}
+
+function doEP() {
+  const phone=document.getElementById('ep-num').value.replace(/\s/g,'');
+  const amt=parseFloat(document.getElementById('depAmt').value);
+  if(!/^03\d{9}$/.test(phone)){showToast('Enter a valid EasyPaisa number.','warning');return;}
+  if(!amt||amt<100){showToast('Minimum deposit is ₨100.','warning');return;}
+  if(!epOtpSent){
+    showProc('Sending OTP to your EasyPaisa number...',false);
+    setTimeout(()=>{closeProc();epOtpSent=true;document.getElementById('ep-otp-row').style.display='block';document.getElementById('ep-btn-txt').textContent='Confirm & Deposit →';showToast('OTP sent! Check your EasyPaisa SMS.','info');},1800);
+  } else {
+    const otp=document.getElementById('ep-otp').value;
+    if(!otp||otp.length<4){showToast('Enter the OTP from your SMS.','warning');return;}
+    completeDeposit(amt,'EasyPaisa');
+  }
+}
+function doJC(){
+  const phone=document.getElementById('jc-num').value.replace(/\s/g,'');
+  const pin=document.getElementById('jc-pin').value;
+  const amt=parseFloat(document.getElementById('depAmt').value);
+  if(!/^03\d{9}$/.test(phone)){showToast('Enter a valid JazzCash number.','warning');return;}
+  if(!pin||pin.length<4){showToast('Enter your JazzCash MPIN.','warning');return;}
+  if(!amt||amt<100){showToast('Minimum deposit is ₨100.','warning');return;}
+  completeDeposit(amt,'JazzCash');
+}
+function doCC(){
+  const name=document.getElementById('cc-name').value.trim();
+  const num=document.getElementById('cc-num').value.replace(/\s/g,'');
+  const exp=document.getElementById('cc-exp').value;
+  const cvv=document.getElementById('cc-cvv').value;
+  const amt=parseFloat(document.getElementById('depAmt').value);
+  if(!name)return showToast('Enter cardholder name.','warning');
+  if(num.length<15)return showToast('Enter a valid card number.','warning');
+  if(!exp||exp.length<5)return showToast('Enter expiry date.','warning');
+  if(!cvv||cvv.length<3)return showToast('Enter CVV.','warning');
+  if(!amt||amt<100)return showToast('Minimum deposit is ₨100.','warning');
+  completeDeposit(amt,'Debit/Credit Card');
+}
+
+function completeDeposit(amt,method){
+  showProc(`Submitting ₨${amt.toLocaleString()} deposit via ${method}...`,false);
+  setTimeout(()=>{
+    savePaymentAndNotify('deposit',`Wallet top-up via ${method}`,amt,method,'pending');
+    showProc('Submitted for Admin Approval ✓',true,'Your deposit of ₨'+amt.toLocaleString()+' is pending admin approval. You will be notified once confirmed (usually 1–4 hours).');
+    epOtpSent=false;
+    document.getElementById('ep-otp-row').style.display='none';
+    document.getElementById('ep-btn-txt').textContent='Request OTP →';
+    document.getElementById('depAmt').value='';
+    const u=store.get('sq_user')||{};
+    renderTxHistory(store.payments());
+    renderPaySummary(store.payments(),u.walletBalance||0);
+    document.getElementById('statPending').textContent='₨'+(store.payments().filter(p=>p.status==='pending').reduce((s,p)=>s+p.amount,0)).toLocaleString();
+  },2200);
+}
+
+function doTaskPay(){
+  if(!selPayTaskId){showToast('Select a task to pay for.','warning');return;}
+  const task=SQ.tasks.find(t=>t.id===selPayTaskId);
+  showProc(`Submitting escrow payment of ₨${task.pay.toLocaleString()}...`,false);
+  setTimeout(()=>{
+    savePaymentAndNotify('pay',`Escrow for: ${task.title.slice(0,40)}...`,task.pay,['EasyPaisa','JazzCash','Card'][['ep','jc','cc'].indexOf(payMethod)]||'EasyPaisa','pending');
+    showProc('Escrow Payment Submitted ✓',true,`₨${task.pay.toLocaleString()} escrow payment submitted. Admin will review and lock the funds within a few hours.`);
+    renderTxHistory(store.payments());
+    selPayTaskId=null;
+    document.querySelectorAll('[id^="ptask-"]').forEach(el=>{el.style.border='2px solid var(--border)';el.style.background='white';});
+  },2000);
+}
+
+function doWithdraw(){
+  const amt=parseFloat(document.getElementById('wd-amt').value);
+  const u=store.get('sq_user')||{};
+  const bal=u.walletBalance||0;
+  if(!amt||amt<100)return showToast('Minimum withdrawal is ₨100.','warning');
+  if(amt>bal)return showToast('Exceeds available balance.','warning');
+  showProc(`Submitting withdrawal of ₨${amt.toLocaleString()}...`,false);
+  setTimeout(()=>{
+    savePaymentAndNotify('withdraw',`Withdrawal via ${({ep:'EasyPaisa',jc:'JazzCash',bk:'Bank Transfer'})[wdMethod]}`,amt,({ep:'EasyPaisa',jc:'JazzCash',bk:'Bank Transfer'})[wdMethod],'pending');
+    showProc('Withdrawal Requested ✓',true,`₨${amt.toLocaleString()} withdrawal submitted. Admin will process within 2–12 hours on business days.`);
+    document.getElementById('wd-amt').value='';
+    document.getElementById('wd-hint').textContent='';
+    renderTxHistory(store.payments());
+  },2000);
+}
+
+/* ---- PROCESSING OVERLAY ---- */
+function showProc(msg,success,sub=''){
+  document.getElementById('procOverlay').classList.add('show');
+  document.getElementById('procTitle').textContent=success?'Submitted!':'Processing...';
+  document.getElementById('procSub').textContent=sub||msg;
+  document.getElementById('procSpin').style.display=success?'none':'block';
+  document.getElementById('procCheck').style.display=success?'block':'none';
+  document.getElementById('procCheck').textContent=success?'✅':'';
+  document.getElementById('procDone').style.display=success?'block':'none';
+}
+function closeProc(){document.getElementById('procOverlay').classList.remove('show');}
+</script>
+</body>
+</html>

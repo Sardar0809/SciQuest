@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — SciQuest</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/landing.css">
+<style>
+.about-mission { padding: 5rem 1.5rem; background: var(--cream); }
+.about-mission-inner { max-width: 800px; margin: 0 auto; text-align: center; }
+.about-mission-inner p { font-size: 1.1rem; color: #555; line-height: 1.85; margin-bottom: 1.2rem; }
+.about-values { padding: 4rem 1.5rem; background: var(--sand); }
+.values-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 1.5rem; max-width: 1000px; margin: 0 auto; }
+.value-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.5rem; }
+.value-icon { font-size: 2rem; margin-bottom: 0.8rem; }
+.value-card h4 { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 0.5rem; }
+.value-card p { font-size: 13px; color: #666; line-height: 1.65; }
+.founder-section { padding: 5rem 1.5rem; background: linear-gradient(135deg,#0f2a1a,#1a4a2e); }
+.founder-card { max-width: 700px; margin: 0 auto; display: flex; gap: 2rem; align-items: center; flex-wrap: wrap; }
+.founder-text h3 { font-family: var(--font-display); font-size: 1.5rem; color: white; margin-bottom: 0.5rem; }
+.founder-text p { color: rgba(255,255,255,0.75); line-height: 1.75; font-size: 15px; }
+.founder-text .title { color: var(--fern); font-weight: 600; font-size: 14px; margin-bottom: 0.8rem; }
+</style>
+</head>
+<body>
+<div class="particles" id="particles"></div>
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">Sci<span>Quest</span></a>
+    <div class="nav-center">
+      <a href="browse.html" class="nav-link">Browse Tasks</a>
+      <a href="how-it-works.html" class="nav-link">How It Works</a>
+      <a href="leaderboard.html" class="nav-link">Leaderboard</a>
+      <a href="about.html" class="nav-link active">About</a>
+    </div>
+    <div class="nav-right" id="navRight">
+      <a href="login.html" class="btn-ghost">Sign In</a>
+      <a href="register.html" class="btn-nav-cta">Join Free</a>
+      <button class="hamburger" id="hamburger">&#9776;</button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobileMenu"><a href="browse.html">Browse</a><a href="login.html">Sign In</a></div>
+</nav>
+
+<div class="main-content">
+  <div class="page-header">
+    <h1>About SciQuest</h1>
+    <p>Built by a Pakistani science student, for Pakistani science students</p>
+  </div>
+
+  <div class="about-mission">
+    <div class="about-mission-inner">
+      <div class="section-tag">Our Mission</div>
+      <h2 class="section-title">Making academic support <em>accessible to all</em></h2>
+      <p>SciQuest was born from a simple frustration: science students in Pakistan have incredible knowledge and skills, but no structured way to help each other or earn from that expertise. A third-year Parasitology student knows more about helminth identification than most — yet there's no platform for them to offer that knowledge to a junior student struggling with a thesis chapter.</p>
+      <p>We built SciQuest to change that. A zero-fee, peer-to-peer academic task exchange where students post what they need, helpers earn fairly, and the entire science community grows stronger together.</p>
+      <p>No middlemen. No fees. No barriers. Just students helping students.</p>
+    </div>
+  </div>
+
+  <div class="about-values">
+    <div style="text-align:center;margin-bottom:2rem;">
+      <div class="section-tag">Our Values</div>
+      <h2 class="section-title">What we stand for</h2>
+    </div>
+    <div class="values-grid">
+      <div class="value-card"><div class="value-icon">🆓</div><h4>Always Free</h4><p>We will never charge students for using SciQuest. Every feature is free for every student, from registration to task completion.</p></div>
+      <div class="value-card"><div class="value-icon">🔒</div><h4>Safe & Verified</h4><p>Only verified university students can join. Admin oversight ensures quality and removes bad actors quickly.</p></div>
+      <div class="value-card"><div class="value-icon">🌍</div><h4>Inclusive</h4><p>We support Urdu and regional languages. Rural, urban, every university, every field — SciQuest is for all Pakistani science students.</p></div>
+      <div class="value-card"><div class="value-icon">🏆</div><h4>Merit-Based</h4><p>The leaderboard rewards effort and excellence. Good helpers rise naturally. Quality work builds lasting reputation.</p></div>
+      <div class="value-card"><div class="value-icon">🤝</div><h4>Community First</h4><p>This is a community, not a marketplace. We want students to build relationships, learn from each other, and grow together.</p></div>
+      <div class="value-card"><div class="value-icon">🔬</div><h4>Science-Focused</h4><p>Built specifically for biology and science students — our fields, categories, and features are tailored to scientific academic work.</p></div>
+    </div>
+  </div>
+
+  <div class="founder-section">
+    <div style="text-align:center;margin-bottom:3rem;">
+      <div class="section-tag light">The Founder</div>
+      <h2 class="section-title light">Built from personal <em>experience</em></h2>
+    </div>
+    <div class="founder-card">
+      <div class="avatar avatar-xl" style="background:var(--fern);color:var(--leaf);font-size:2.5rem;flex-shrink:0;">🔬</div>
+      <div class="founder-text">
+        <div class="title">Saeed Ullah | MPhil Parasitology · University of Agriculture,Peshawer</div>
+        <h3>Saeed Ullah — Founder of SciQuest of SciQuest</h3>
+        <p>"I am Saeed Ullah, an MPhil Parasitology student at the University of Agriculture,Peshawer. I built SciQuest because brilliant science students had no structured way to earn from their knowledge, while others struggled with academic tasks that a skilled peer could solve in hours. SciQuest is my answer — a zero-fee, peer-to-peer academic task exchange built specifically for Pakistan's science community."</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-banner" style="background:var(--mist);">
+    <h2>Join 1,800+ science students on SciQuest</h2>
+    <p>Free forever. Built for Pakistan. Open to all science fields.</p>
+    <div class="hero-cta-row">
+      <a href="register.html" class="btn-hero-primary">Create Free Account</a>
+      <a href="browse.html" class="btn-hero-outline" style="color:var(--leaf);border-color:rgba(26,74,46,0.35);">Explore Tasks</a>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="nav-logo" style="font-size:1.5rem;margin-bottom:0.8rem;">Sci<span>Quest</span></div>
+      <p>Pakistan's peer academic task exchange for science students. Free forever.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col"><h5>Platform</h5><a href="browse.html">Browse Tasks</a><a href="post-task.html">Post a Task</a><a href="leaderboard.html">Leaderboard</a></div>
+      <div class="footer-col"><h5>Account</h5><a href="register.html">Register</a><a href="login.html">Sign In</a><a href="dashboard.html">Dashboard</a></div>
+      <div class="footer-col"><h5>Support</h5><a href="how-it-works.html">How It Works</a><a href="contact.html">Contact</a><a href="guidelines.html">Guidelines</a></div>
+    </div>
+  </div>
+  <div class="footer-bottom"><span>© 2025 SciQuest. Built for Pakistan's Science Students.</span></div>
+</footer>
+
+<script src="js/app.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

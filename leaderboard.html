@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Leaderboard — SciQuest</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/landing.css">
+<style>
+.lb-hero { background: linear-gradient(135deg, #0a1f11 0%, #1a4a2e 100%); padding: 7rem 1.5rem 4rem; text-align: center; position: relative; overflow: hidden; }
+.lb-hero::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 50% 60%, rgba(82,183,136,0.2) 0%, transparent 60%); }
+.lb-hero h1 { font-family: var(--font-display); font-size: 2.8rem; color: white; position: relative; }
+.lb-hero p { color: rgba(216,243,220,0.8); margin-top: 0.8rem; font-size: 1.05rem; position: relative; max-width: 500px; margin-left: auto; margin-right: auto; }
+.reset-counter { display: inline-flex; align-items: center; gap: 8px; background: rgba(82,183,136,0.2); border: 1px solid rgba(82,183,136,0.4); color: var(--fern); font-size: 14px; padding: 8px 20px; border-radius: 30px; margin-top: 1.2rem; position: relative; }
+.lb-body { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.lb-tabs-row { display: flex; gap: 10px; margin-bottom: 2rem; flex-wrap: wrap; justify-content: center; }
+.lb-tab { padding: 8px 20px; border-radius: 30px; font-size: 14px; font-weight: 500; border: 1.5px solid var(--border-md); background: white; color: #555; cursor: pointer; transition: all 0.18s; font-family: var(--font-body); }
+.lb-tab.on { background: var(--leaf); color: white; border-color: var(--leaf); }
+.podium { display: flex; align-items: flex-end; justify-content: center; gap: 1.5rem; margin-bottom: 2rem; }
+.podium-place { text-align: center; display: flex; flex-direction: column; align-items: center; }
+.podium-avatar { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; color: white; margin-bottom: 0.8rem; border: 3px solid rgba(255,255,255,0.3); }
+.podium-block { border-radius: 8px 8px 0 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 2rem; color: white; }
+.podium-name { font-size: 14px; font-weight: 700; color: var(--ink); margin-top: 0.5rem; }
+.podium-field { font-size: 12px; color: #888; }
+.podium-score { font-size: 13px; font-weight: 700; color: var(--moss); margin-top: 2px; }
+.lb-full-list { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.lb-full-row { display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: 12px; padding: 14px 1.5rem; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+.lb-full-row:last-child { border-bottom: none; }
+.lb-full-row:hover { background: #fafafa; }
+.lb-full-row.me { background: #f0f9f4; border-left: 3px solid var(--fern); }
+.lb-rank-display { font-family: var(--font-display); font-size: 1.3rem; text-align: center; }
+.lb-rank-display.r1 { color: #d4a000; }
+.lb-rank-display.r2 { color: #888; }
+.lb-rank-display.r3 { color: #b06000; }
+.lb-rank-display.other { color: #ccc; }
+.lb-user-info { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; }
+.lb-user-details .lb-un { font-size: 14px; font-weight: 700; }
+.lb-user-details .lb-ud { font-size: 12px; color: #888; margin-top: 2px; }
+.lb-right-col { text-align: right; }
+.lb-tasks { font-size: 16px; font-weight: 700; color: var(--moss); }
+.lb-pts { font-size: 11px; color: #aaa; }
+.me-tag { font-size: 11px; background: var(--mist); color: var(--moss); padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+.how-section { padding: 5rem 1.5rem; background: var(--cream); }
+.how-content { max-width: 900px; margin: 0 auto; }
+</style>
+</head>
+<body>
+<div class="particles" id="particles"></div>
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">Sci<span>Quest</span></a>
+    <div class="nav-center">
+      <a href="browse.html" class="nav-link">Browse Tasks</a>
+      <a href="how-it-works.html" class="nav-link">How It Works</a>
+      <a href="leaderboard.html" class="nav-link active">Leaderboard</a>
+    </div>
+    <div class="nav-right" id="navRight">
+      <a href="login.html" class="btn-ghost">Sign In</a>
+      <a href="register.html" class="btn-nav-cta">Join Free</a>
+      <button class="hamburger" id="hamburger">&#9776;</button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobileMenu"><a href="browse.html">Browse</a><a href="login.html">Sign In</a></div>
+</nav>
+
+<div class="main-content">
+  <div class="lb-hero">
+    <div style="position:relative;">
+      <div class="section-tag light">Top Performers</div>
+      <h1>🏆 Weekly Leaderboard</h1>
+      <p>Ranked by tasks completed this week. Resets every Sunday at midnight.</p>
+      <div class="reset-counter">⏱ Resets in: <strong id="lbTimer">3 days 14 hrs 22 mins</strong></div>
+    </div>
+  </div>
+
+  <div class="lb-body">
+    <!-- FILTER TABS -->
+    <div class="lb-tabs-row">
+      <button class="lb-tab on" onclick="filterLB(this,'all')">All Fields</button>
+      <button class="lb-tab" onclick="filterLB(this,'Parasitology')">Parasitology</button>
+      <button class="lb-tab" onclick="filterLB(this,'Microbiology')">Microbiology</button>
+      <button class="lb-tab" onclick="filterLB(this,'Biochemistry')">Biochemistry</button>
+      <button class="lb-tab" onclick="filterLB(this,'Zoology')">Zoology</button>
+      <button class="lb-tab" onclick="filterLB(this,'Genetics')">Genetics</button>
+    </div>
+
+    <!-- PODIUM -->
+    <div class="podium" id="podium"></div>
+
+    <!-- FULL LIST -->
+    <div class="lb-full-list" id="lbFullList"></div>
+
+    <!-- HOW POINTS WORK -->
+    <div class="card" style="margin-top:2rem;background:var(--sand);box-shadow:none;">
+      <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--leaf);margin-bottom:1rem;">How Points Work</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
+        ${[['✅','Complete a task','1 point'],['⭐','Receive 5-star rating','+0.5 bonus'],['🚀','Urgent task done','+0.5 bonus'],['🏆','Top 3 weekly finish','Special badge'],['📋','Post a task','Counts toward profile']].map(([i,l,v])=>`
+          <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:1.5rem;">${i}</span><div><div style="font-size:13px;font-weight:600;">${l}</div><div style="font-size:12px;color:var(--moss);font-weight:700;">${v}</div></div></div>
+        `).join('')}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/main.js"></script>
+<script>
+let currentField = 'all';
+
+function filterLB(el, field) {
+  currentField = field;
+  document.querySelectorAll('.lb-tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  renderLB();
+}
+
+function renderLB() {
+  const data = currentField==='all' ? SQ.leaders : SQ.leaders.filter(l=>l.field===currentField);
+
+  // Podium (top 3)
+  const top3 = data.slice(0,3);
+  if(top3.length >= 3) {
+    const [g,s,b] = top3;
+    document.getElementById('podium').innerHTML = `
+      <div class="podium-place">
+        <div class="podium-avatar" style="background:${s.color};width:56px;height:56px;font-size:18px;">${s.initials}</div>
+        <div class="podium-name">${s.name}</div>
+        <div class="podium-field">${s.field}</div>
+        <div class="podium-score">${s.tasks} tasks</div>
+        <div class="podium-block" style="background:#9ca3af;width:80px;height:70px;">2</div>
+      </div>
+      <div class="podium-place">
+        <div style="font-size:2rem;margin-bottom:0.3rem;">👑</div>
+        <div class="podium-avatar" style="background:${g.color};width:72px;height:72px;font-size:22px;">${g.initials}</div>
+        <div class="podium-name">${g.name}</div>
+        <div class="podium-field">${g.field}</div>
+        <div class="podium-score">${g.tasks} tasks</div>
+        <div class="podium-block" style="background:#d4a000;width:90px;height:100px;">1</div>
+      </div>
+      <div class="podium-place">
+        <div class="podium-avatar" style="background:${b.color};width:48px;height:48px;font-size:16px;">${b.initials}</div>
+        <div class="podium-name">${b.name}</div>
+        <div class="podium-field">${b.field}</div>
+        <div class="podium-score">${b.tasks} tasks</div>
+        <div class="podium-block" style="background:#b06000;width:70px;height:50px;">3</div>
+      </div>
+    `;
+  } else {
+    document.getElementById('podium').innerHTML = '';
+  }
+
+  // Full list
+  const user = JSON.parse(localStorage.getItem('sq_user')||'null');
+  document.getElementById('lbFullList').innerHTML = data.map((l,i)=>`
+    <div class="lb-full-row ${user&&user.name===l.name?'me':''}">
+      <div class="lb-rank-display ${i<3?'r'+(i+1):'other'}">${i<3?['🥇','🥈','🥉'][i]:l.rank}</div>
+      <div class="lb-user-info">
+        <div class="avatar avatar-sm" style="background:${l.color}">${l.initials}</div>
+        <div class="lb-user-details">
+          <div class="lb-un">${l.name} ${user&&user.name===l.name?'<span class="me-tag">You</span>':''}</div>
+          <div class="lb-ud">${l.field} · ${l.university} · ★ ${l.rating}</div>
+        </div>
+      </div>
+      <div class="lb-right-col">
+        <div class="lb-tasks">${l.tasks}</div>
+        <div class="lb-pts">tasks completed</div>
+      </div>
+    </div>
+  `).join('') || '<div style="text-align:center;padding:3rem;color:#888;">No results for this field yet.</div>';
+}
+
+// Countdown
+function lbCountdown() {
+  const now = new Date();
+  const sunday = new Date(now);
+  sunday.setDate(now.getDate() + (7 - now.getDay()) % 7);
+  sunday.setHours(0,0,0,0);
+  const diff = sunday - now;
+  const d = Math.floor(diff/86400000);
+  const h = Math.floor((diff%86400000)/3600000);
+  const m = Math.floor((diff%3600000)/60000);
+  document.getElementById('lbTimer').textContent = `${d}d ${h}h ${m}m`;
+}
+lbCountdown();
+setInterval(lbCountdown, 60000);
+
+renderLB();
+</script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SciQuest — Academic Task Exchange for Science Students</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/landing.css">
+</head>
+<body>
+
+<!-- FLOATING PARTICLES -->
+<div class="particles" id="particles"></div>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">Sci<span>Quest</span></a>
+    <div class="nav-center">
+      <a href="browse.html" class="nav-link">Browse Tasks</a>
+      <a href="how-it-works.html" class="nav-link">How It Works</a>
+      <a href="leaderboard.html" class="nav-link">Leaderboard</a>
+      <a href="about.html" class="nav-link">About</a>
+    </div>
+    <div class="nav-right">
+      <a href="login.html" class="btn-ghost">Sign In</a>
+      <a href="register.html" class="btn-nav-cta">Join Free</a>
+      <button class="hamburger" id="hamburger">&#9776;</button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="browse.html">Browse Tasks</a>
+    <a href="how-it-works.html">How It Works</a>
+    <a href="leaderboard.html">Leaderboard</a>
+    <a href="login.html">Sign In</a>
+    <a href="register.html" class="mobile-cta">Join Free →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">🔬 Pakistan's First Academic Task Exchange</div>
+  <h1 class="hero-title">Where <em>Scientific Minds</em><br>Help Each Other Grow</h1>
+  <p class="hero-sub">Post thesis writing, surveys, presentations, synopses — connect with verified science students who deliver. <strong>Zero platform fees. Forever.</strong></p>
+  <div class="hero-cta-row">
+    <a href="browse.html" class="btn-hero-primary">Browse Open Tasks</a>
+    <a href="register.html" class="btn-hero-outline">Create Free Profile →</a>
+  </div>
+  <div class="hero-trust">
+    <span>✓ Verified Students Only</span>
+    <span>✓ Urdu &amp; English Support</span>
+    <span>✓ Peer-Reviewed Profiles</span>
+    <span>✓ Weekly Leaderboard</span>
+  </div>
+</section>
+
+<!-- LIVE STATS -->
+<section class="stats-strip">
+  <div class="stat-block">
+    <div class="stat-n" data-target="1842">0</div>
+    <div class="stat-l">Registered Students</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat-block">
+    <div class="stat-n" data-target="384">0</div>
+    <div class="stat-l">Tasks Completed</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat-block">
+    <div class="stat-n" data-target="27">0</div>
+    <div class="stat-l">Universities</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat-block">
+    <div class="stat-n">PKR 0</div>
+    <div class="stat-l">Platform Fee Always</div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section">
+  <div class="section-tag">Simple Process</div>
+  <h2 class="section-title">Get help or earn in <em>3 steps</em></h2>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">01</div>
+      <div class="step-icon">👤</div>
+      <h3>Create Your Profile</h3>
+      <p>Sign up with your university email. Add your degree, field, skills and bio. Your profile is your academic identity.</p>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step-card">
+      <div class="step-num">02</div>
+      <div class="step-icon">📋</div>
+      <h3>Post or Browse</h3>
+      <p>Post a task with your budget, or browse open tasks in your field. Filter by type, subject, budget or deadline.</p>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step-card">
+      <div class="step-num">03</div>
+      <div class="step-icon">🤝</div>
+      <h3>Connect &amp; Deliver</h3>
+      <p>Accept a task, complete it, get paid directly peer-to-peer. Earn rating points and climb the weekly leaderboard.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TASK TYPES -->
+<section class="task-types-section">
+  <div class="section-tag">What You Can Post</div>
+  <h2 class="section-title">Every kind of <em>academic task</em></h2>
+  <div class="types-grid">
+    <div class="type-tile" style="--tc:#1a4a2e;">
+      <div class="type-emoji">📝</div>
+      <h4>Thesis Writing</h4>
+      <p>Chapter writing, literature reviews, methodology sections</p>
+    </div>
+    <div class="type-tile" style="--tc:#4f46e5;">
+      <div class="type-emoji">📊</div>
+      <h4>Synopsis Writing</h4>
+      <p>MPhil/PhD synopsis structure, objectives, methodology</p>
+    </div>
+    <div class="type-tile" style="--tc:#9d174d;">
+      <div class="type-emoji">🖼️</div>
+      <h4>Presentations</h4>
+      <p>PowerPoint, seminar slides, poster design, infographics</p>
+    </div>
+    <div class="type-tile" style="--tc:#b45309;">
+      <div class="type-emoji">📋</div>
+      <h4>Survey Filling</h4>
+      <p>Fill questionnaires for fellow students' research projects</p>
+    </div>
+    <div class="type-tile" style="--tc:#0f766e;">
+      <div class="type-emoji">📈</div>
+      <h4>Data Analysis</h4>
+      <p>SPSS, Excel, R analysis and result interpretation</p>
+    </div>
+    <div class="type-tile" style="--tc:#7c3aed;">
+      <div class="type-emoji">📚</div>
+      <h4>Literature Review</h4>
+      <p>Research summaries, citations, reference formatting</p>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE TASKS PREVIEW -->
+<section class="preview-section">
+  <div class="section-tag">Currently Open</div>
+  <h2 class="section-title">Latest <em>posted tasks</em></h2>
+  <div class="tasks-preview-grid" id="previewTasks"></div>
+  <div style="text-align:center;margin-top:2.5rem;">
+    <a href="browse.html" class="btn-hero-primary">View All Open Tasks →</a>
+  </div>
+</section>
+
+<!-- LEADERBOARD PREVIEW -->
+<section class="lb-preview-section">
+  <div class="lb-left">
+    <div class="section-tag light">Weekly Champions</div>
+    <h2 class="section-title light">Top <em>Helpers</em> this week</h2>
+    <p style="color:rgba(255,255,255,0.7);margin-bottom:2rem;line-height:1.7;">Every Sunday the leaderboard resets. The top 3 helpers earn a special badge on their profile visible to all users.</p>
+    <a href="leaderboard.html" class="btn-hero-outline">Full Leaderboard →</a>
+  </div>
+  <div class="lb-right" id="lbPreview"></div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials-section">
+  <div class="section-tag">Student Stories</div>
+  <h2 class="section-title">What students <em>say</em></h2>
+  <div class="testimonials-grid">
+    <div class="testimonial-card">
+      <div class="quote">"I got my MPhil synopsis done in 3 days. The student who helped me was from the same field — they knew exactly what my supervisor wanted."</div>
+      <div class="testimonial-author">
+        <div class="t-avatar" style="background:#1a4a2e;">FR</div>
+        <div><strong>Fatima Rashid</strong><br><span>MPhil Parasitology, UOP</span></div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="quote">"I've completed 18 tasks this month and earned over ₨35,000 while helping my peers. SciQuest is the best thing to happen to science students in Pakistan."</div>
+      <div class="testimonial-author">
+        <div class="t-avatar" style="background:#4f46e5;">BM</div>
+        <div><strong>Bilal Mahmood</strong><br><span>MSc Microbiology, QAU</span></div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="quote">"The survey feature is incredible. I got 200 responses to my research questionnaire in 48 hours from verified science students nationwide."</div>
+      <div class="testimonial-author">
+        <div class="t-avatar" style="background:#9d174d;">SK</div>
+        <div><strong>Sara Khan</strong><br><span>PhD Biochemistry, KMU</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="cta-banner">
+  <h2>Ready to join Pakistan's science student network?</h2>
+  <p>Free forever. No hidden fees. Just students helping students.</p>
+  <div class="hero-cta-row">
+    <a href="register.html" class="btn-hero-primary">Create Free Account</a>
+    <a href="browse.html" class="btn-hero-outline">Explore Tasks</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="nav-logo" style="font-size:1.5rem;margin-bottom:0.8rem;">Sci<span>Quest</span></div>
+      <p>Pakistan's peer academic task exchange for biology and science students. Free forever.</p>
+      <div class="footer-lang">
+        <span class="lang-btn active">English</span>
+        <span class="lang-btn">اردو</span>
+      </div>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <h5>Platform</h5>
+        <a href="browse.html">Browse Tasks</a>
+        <a href="post-task.html">Post a Task</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="how-it-works.html">How It Works</a>
+      </div>
+      <div class="footer-col">
+        <h5>Account</h5>
+        <a href="register.html">Register</a>
+        <a href="login.html">Sign In</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="wallet.html">Wallet &amp; Payments</a>
+        <a href="profile.html">My Profile</a>
+      </div>
+      <div class="footer-col">
+        <h5>Support</h5>
+        <a href="faq.html">FAQ</a>
+        <a href="contact.html">Contact Us</a>
+        <a href="guidelines.html">Community Guidelines</a>
+        <a href="privacy.html">Privacy Policy</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 SciQuest. Built for Pakistan's Science Students.</span>
+    <span>Founded by Saeed Ullah · <a href="mailto:saeedullahbacha048@gmail.com" style="color:var(--fern);text-decoration:none;">saeedullahbacha048@gmail.com</a></span>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+<script src="js/main.js"></script>
+<script src="js/landing.js"></script>
+</body>
+</html>

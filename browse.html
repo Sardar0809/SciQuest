@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Browse Tasks — SciQuest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/app.css">
+<style>
+.browse-layout { display: grid; grid-template-columns: 260px 1fr; gap: 2rem; padding: 2rem 0; }
+.filter-panel { position: sticky; top: 84px; align-self: start; }
+.filter-section { background: white; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.3rem; margin-bottom: 1rem; }
+.filter-section h5 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #888; margin-bottom: 1rem; }
+.filter-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: white; color: #555; cursor: pointer; transition: all 0.18s; font-family: var(--font-body); font-weight: 500; }
+.chip.on { background: var(--leaf); color: white; border-color: var(--leaf); }
+.chip:hover:not(.on) { border-color: var(--fern); color: var(--moss); }
+.range-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #666; margin-top: 0.5rem; }
+.range-row input[type=range] { flex: 1; accent-color: var(--moss); }
+.sort-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.sort-bar span { font-size: 14px; color: #666; }
+.sort-bar select { font-size: 13px; padding: 6px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: var(--font-body); color: var(--ink); background: white; outline: none; cursor: pointer; }
+.tasks-list { display: flex; flex-direction: column; gap: 1rem; }
+.search-bar { display: flex; gap: 0.8rem; margin-bottom: 1.5rem; }
+.search-bar input { flex: 1; padding: 11px 16px; border: 1.5px solid var(--border-md); border-radius: var(--radius-xl); font-size: 14px; font-family: var(--font-body); outline: none; transition: border-color 0.2s; }
+.search-bar input:focus { border-color: var(--fern); }
+.search-bar button { background: var(--leaf); color: white; border: none; border-radius: var(--radius-xl); padding: 0 20px; font-size: 14px; font-weight: 600; font-family: var(--font-body); cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+.search-bar button:hover { background: var(--moss); }
+.no-tasks { text-align: center; padding: 4rem 2rem; color: #888; }
+.no-tasks div { font-size: 3rem; margin-bottom: 1rem; }
+.task-card-horizontal { background: white; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.4rem 1.6rem; transition: all 0.22s; }
+.task-card-horizontal:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: rgba(82,183,136,0.3); }
+.task-card-h-top { display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 0.8rem; }
+.task-card-h-body { margin-bottom: 0.8rem; }
+.task-card-h-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem; }
+@media (max-width: 860px) { .browse-layout { grid-template-columns: 1fr; } .filter-panel { position: static; } }
+</style>
+</head>
+<body>
+<div class="particles" id="particles"></div>
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">Sci<span>Quest</span></a>
+    <div class="nav-center">
+      <a href="browse.html" class="nav-link active">Browse Tasks</a>
+      <a href="how-it-works.html" class="nav-link">How It Works</a>
+      <a href="leaderboard.html" class="nav-link">Leaderboard</a>
+      <a href="about.html" class="nav-link">About</a>
+    </div>
+    <div class="nav-right" id="navRight">
+      <a href="login.html" class="btn-ghost">Sign In</a>
+      <a href="register.html" class="btn-nav-cta">Join Free</a>
+      <button class="hamburger" id="hamburger">&#9776;</button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="browse.html">Browse Tasks</a>
+    <a href="how-it-works.html">How It Works</a>
+    <a href="leaderboard.html">Leaderboard</a>
+    <a href="login.html">Sign In</a>
+    <a href="register.html" class="mobile-cta">Join Free →</a>
+  </div>
+</nav>
+
+<div class="main-content">
+  <div class="page-header">
+    <h1>Browse Open Tasks</h1>
+    <p>Find academic tasks in your field and start earning</p>
+  </div>
+
+  <div class="container">
+    <div class="browse-layout">
+
+      <!-- FILTER PANEL -->
+      <aside class="filter-panel">
+        <div class="filter-section">
+          <h5>Task Type</h5>
+          <div class="filter-chips">
+            <div class="chip on" data-filter="type" data-val="all">All</div>
+            <div class="chip" data-filter="type" data-val="thesis">Thesis</div>
+            <div class="chip" data-filter="type" data-val="synopsis">Synopsis</div>
+            <div class="chip" data-filter="type" data-val="presentation">Presentation</div>
+            <div class="chip" data-filter="type" data-val="survey">Survey</div>
+            <div class="chip" data-filter="type" data-val="data">Data Analysis</div>
+            <div class="chip" data-filter="type" data-val="literature">Literature</div>
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <h5>Field of Study</h5>
+          <div class="filter-chips" id="fieldChips"></div>
+        </div>
+
+        <div class="filter-section">
+          <h5>Budget Range (PKR)</h5>
+          <div class="range-row">
+            <span>₨0</span>
+            <input type="range" min="0" max="10000" value="10000" step="500" id="budgetRange" oninput="document.getElementById('budgetVal').textContent='₨'+parseInt(this.value).toLocaleString();applyFilters()">
+            <span id="budgetVal">₨10,000</span>
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <h5>Status</h5>
+          <div class="filter-chips">
+            <div class="chip on" data-filter="status" data-val="all">All</div>
+            <div class="chip" data-filter="status" data-val="open">Open</div>
+            <div class="chip" data-filter="status" data-val="urgent">Urgent Only</div>
+          </div>
+        </div>
+
+        <button onclick="resetFilters()" class="btn-secondary w-full" style="margin-top:0.5rem;">↺ Reset Filters</button>
+      </aside>
+
+      <!-- TASK LIST -->
+      <main>
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Search tasks by keyword, field, or university..." oninput="applyFilters()">
+          <button onclick="applyFilters()">Search</button>
+        </div>
+        <div class="sort-bar">
+          <span id="taskCount">Showing <strong>8</strong> tasks</span>
+          <select id="sortSelect" onchange="applyFilters()">
+            <option value="newest">Newest First</option>
+            <option value="pay-high">Highest Pay</option>
+            <option value="pay-low">Lowest Pay</option>
+            <option value="deadline">Earliest Deadline</option>
+            <option value="popular">Most Responses</option>
+          </select>
+        </div>
+        <div class="tasks-list" id="tasksList"></div>
+        <div class="pagination" id="pagination"></div>
+      </main>
+
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/main.js"></script>
+<script>
+let activeFilters = { type:'all', field:'all', status:'all' };
+
+// Render field chips
+document.getElementById('fieldChips').innerHTML = ['All',...SQ.fields.slice(0,6),'More...'].map((f,i)=>`
+  <div class="chip ${i===0?'on':''}" data-filter="field" data-val="${f==='All'?'all':f}" style="font-size:11px;">${f}</div>
+`).join('');
+
+// Chip click
+document.querySelectorAll('.chip[data-filter]').forEach(c=>{
+  c.addEventListener('click', ()=>{
+    const f = c.dataset.filter, v = c.dataset.val;
+    document.querySelectorAll(`.chip[data-filter="${f}"]`).forEach(x=>x.classList.remove('on'));
+    c.classList.add('on');
+    activeFilters[f] = v;
+    applyFilters();
+  });
+});
+
+function getAllTasks() {
+  // Merge real user-posted tasks with the platform demo tasks
+  const userTasks = (typeof DB !== 'undefined' ? DB.getTasks() : []).filter(t => t.status !== 'pending_approval');
+  const merged = [...userTasks];
+  // Add SQ.tasks that don't conflict
+  SQ.tasks.forEach(t => { if(!merged.find(x=>x.id===t.id)) merged.push(t); });
+  return merged;
+}
+
+function applyFilters() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const sort = document.getElementById('sortSelect').value;
+  const budget = parseInt(document.getElementById('budgetRange').value);
+
+  let filtered = getAllTasks().filter(t=>{
+    if(activeFilters.type !== 'all' && t.type !== activeFilters.type) return false;
+    if(activeFilters.field !== 'all' && t.field !== activeFilters.field) return false;
+    if(activeFilters.status === 'urgent' && !t.urgent) return false;
+    if(t.pay > budget) return false;
+    if(search && !t.title.toLowerCase().includes(search) && !t.field.toLowerCase().includes(search) && !t.desc.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  if(sort==='pay-high') filtered.sort((a,b)=>b.pay-a.pay);
+  else if(sort==='pay-low') filtered.sort((a,b)=>a.pay-b.pay);
+  else if(sort==='deadline') filtered.sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
+  else if(sort==='popular') filtered.sort((a,b)=>b.responses-a.responses);
+
+  document.getElementById('taskCount').innerHTML = `Showing <strong>${filtered.length}</strong> task${filtered.length!==1?'s':''}`;
+
+  const list = document.getElementById('tasksList');
+  if(!filtered.length) {
+    list.innerHTML = `<div class="no-tasks"><div>🔍</div><strong>No tasks found</strong><br><span>Try adjusting your filters</span></div>`;
+  } else {
+    list.innerHTML = filtered.map(t=>{
+      const days = Math.ceil((new Date(t.deadline)-new Date())/86400000);
+      return `
+        <div class="task-card-horizontal">
+          <div class="task-card-h-top">
+            <div style="flex:1;">
+              <div style="display:flex;gap:8px;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap;">
+                <span class="task-type-badge ${SQ.badgeClass[t.type]||'badge-other'}">${SQ.taskTypes[t.type]}</span>
+                ${t.urgent?'<span class="urgent-tag">Urgent</span>':''}
+                <span class="tag tag-neutral" style="font-size:11px;">📚 ${t.field}</span>
+              </div>
+              <div class="task-title" style="font-size:1.05rem;">${t.title}</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+              <div class="task-pay" style="font-size:1.3rem;">₨${t.pay.toLocaleString()}</div>
+              <div style="font-size:12px;color:#888;margin-top:2px;">${t.responses} replies</div>
+            </div>
+          </div>
+          <div class="task-card-h-body">
+            <div class="task-desc" style="-webkit-line-clamp:2;">${t.desc}</div>
+          </div>
+          <div class="task-card-h-footer">
+            <div class="task-meta">
+              <span class="task-meta-item"><span class="task-avatar" style="background:${t.poster.color}">${t.poster.initials}</span> ${t.poster.name}</span>
+              <span class="task-meta-item" style="margin-left:8px;">🏫 ${t.university}</span>
+              <span class="task-meta-item" style="margin-left:8px;">⏳ ${days>0?days+' days left':'Due today'}</span>
+            </div>
+            <button class="btn-primary btn-sm" onclick="acceptTask(${t.id})">Accept Task →</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+function resetFilters() {
+  activeFilters = {type:'all',field:'all',status:'all'};
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('.chip[data-val="all"]').forEach(c=>c.classList.add('on'));
+  document.getElementById('searchInput').value = '';
+  document.getElementById('budgetRange').value = 10000;
+  document.getElementById('budgetVal').textContent = '₨10,000';
+  applyFilters();
+}
+
+applyFilters();
+</script>
+</body>
+</html>

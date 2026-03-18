@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post an Assignment — SciQuest</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+<style>
+.post-wrap { max-width: 1080px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+.post-grid { display: grid; grid-template-columns: 1fr 340px; gap: 2rem; }
+.form-card { background: white; border: 1px solid var(--bd); border-radius: var(--r-lg); padding: 2rem; }
+.form-card + .form-card { margin-top: 1.5rem; }
+.section-hdr { display: flex; align-items: center; gap: 10px; margin-bottom: 1.4rem; padding-bottom: .9rem; border-bottom: 1px solid var(--bd); }
+.section-hdr .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--leaf); color: white; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.section-hdr h3 { font-size: 16px; font-weight: 700; color: var(--ink); }
+.section-hdr span { font-size: 13px; color: var(--smoke); }
+.type-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 1.2rem; }
+.type-opt { border: 2px solid var(--bd); border-radius: var(--r-sm); padding: .8rem .4rem; text-align: center; cursor: pointer; transition: all .2s; background: white; }
+.type-opt:hover { border-color: var(--fern); background: var(--pale); }
+.type-opt.sel { border-color: var(--leaf); background: var(--pale); }
+.type-opt .to-icon { font-size: 1.5rem; margin-bottom: 4px; }
+.type-opt .to-label { font-size: 11px; font-weight: 600; color: var(--ink); }
+.type-opt.sel .to-label { color: var(--leaf); }
+.char-count { float: right; font-size: 11px; color: var(--smoke); }
+.file-zone { border: 2px dashed var(--bd-md); border-radius: var(--r-md); padding: 1.8rem; text-align: center; cursor: pointer; transition: all .2s; background: var(--fog); }
+.file-zone:hover { border-color: var(--fern); background: var(--pale); }
+.file-zone.has-file { border-color: var(--moss); background: var(--pale); border-style: solid; }
+.file-zone input[type=file] { display: none; }
+.file-zone .fz-icon { font-size: 2rem; margin-bottom: .5rem; }
+.file-zone .fz-main { font-size: 14px; font-weight: 600; color: var(--steel); }
+.file-zone .fz-sub { font-size: 12px; color: var(--smoke); margin-top: 3px; }
+.attached-file { display: flex; align-items: center; gap: 10px; background: var(--pale); border: 1px solid var(--mist); border-radius: var(--r-sm); padding: 8px 12px; margin-top: .6rem; }
+.attached-file .af-icon { font-size: 1.2rem; }
+.attached-file .af-name { font-size: 13px; font-weight: 600; flex: 1; }
+.attached-file .af-size { font-size: 12px; color: var(--smoke); }
+.attached-file .af-rm { background: none; border: none; color: var(--red); cursor: pointer; font-size: 1rem; padding: 0; }
+.pay-display { background: linear-gradient(135deg, var(--leaf), var(--moss)); border-radius: var(--r-lg); padding: 1.5rem; text-align: center; margin-bottom: 1rem; }
+.pay-display .pd-label { font-size: 12px; color: rgba(216,243,220,.7); font-weight: 600; text-transform: uppercase; letter-spacing: .8px; margin-bottom: .3rem; }
+.pay-display .pd-amount { font-family: var(--font-display); font-size: 2.8rem; color: white; line-height: 1; }
+.pay-display .pd-fee { font-size: 12px; color: rgba(216,243,220,.7); margin-top: .3rem; }
+.quick-budget { display: flex; gap: 6px; flex-wrap: wrap; margin-top: .6rem; }
+.qb { padding: 5px 12px; border-radius: 20px; background: white; border: 1.5px solid var(--bd); font-size: 12px; font-weight: 600; color: var(--steel); cursor: pointer; transition: all .15s; }
+.qb:hover, .qb.on { background: var(--leaf); color: white; border-color: var(--leaf); }
+.tip-card { background: var(--pale); border: 1px solid var(--mist); border-radius: var(--r-sm); padding: 1rem; margin-bottom: 1rem; }
+.tip-card h5 { font-size: 13px; font-weight: 700; color: var(--leaf); margin-bottom: .5rem; }
+.tip-card li { font-size: 12px; color: var(--steel); line-height: 1.7; }
+.tip-card li::before { content: '✓ '; color: var(--fern); font-weight: 700; }
+.similar-item { padding: 9px 0; border-bottom: 1px solid var(--bd); cursor: pointer; transition: padding .15s; }
+.similar-item:hover { padding-left: 6px; }
+.similar-item:last-child { border-bottom: none; }
+.progress-steps { display: flex; justify-content: space-between; margin-bottom: 2rem; position: relative; }
+.progress-steps::before { content:''; position:absolute; top:14px; left:0; right:0; height:2px; background:var(--bd); z-index:0; }
+.ps-step { display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; z-index: 1; }
+.ps-dot { width: 28px; height: 28px; border-radius: 50%; background: var(--bd); border: 3px solid white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--smoke); transition: all .3s; }
+.ps-dot.done { background: var(--fern); color: white; }
+.ps-dot.active { background: var(--leaf); color: white; }
+.ps-label { font-size: 11px; color: var(--smoke); font-weight: 500; }
+.ps-step.active .ps-label { color: var(--leaf); font-weight: 700; }
+.urgency-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.urg-opt { border: 2px solid var(--bd); border-radius: var(--r-sm); padding: .8rem; cursor: pointer; transition: all .2s; text-align: center; }
+.urg-opt:hover { border-color: var(--fern); }
+.urg-opt.sel { border-color: var(--leaf); background: var(--pale); }
+.urg-opt .uo-icon { font-size: 1.3rem; margin-bottom: 3px; }
+.urg-opt .uo-label { font-size: 12px; font-weight: 700; }
+.urg-opt .uo-sub { font-size: 11px; color: var(--smoke); }
+.requirement-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--bd); }
+.requirement-row:last-child { border-bottom: none; }
+.req-label { font-size: 13px; font-weight: 500; flex: 1; }
+.req-toggle { display: flex; align-items: center; gap: 6px; }
+@media (max-width: 860px) { .post-grid { grid-template-columns: 1fr; } .type-grid { grid-template-columns: repeat(4,1fr); } }
+@media (max-width: 500px) { .type-grid { grid-template-columns: repeat(3,1fr); } .grid-3 { grid-template-columns: 1fr; } .urgency-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div id="particles"></div>
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">Sci<span>Quest</span></a>
+    <div class="nav-center">
+      <a href="browse.html" class="nav-link">Browse Tasks</a>
+      <a href="leaderboard.html" class="nav-link">Leaderboard</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+    </div>
+    <div class="nav-right" id="navRight">
+      <a href="login.html" class="btn btn-secondary btn-sm">Sign In</a>
+      <a href="register.html" class="btn btn-primary btn-sm">Join Free</a>
+      <button class="hamburger" id="hamburger">☰</button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="browse.html">Browse Tasks</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="login.html">Sign In</a>
+  </div>
+</nav>
+
+<div class="mc">
+  <div class="page-hdr">
+    <h1>Post an Assignment</h1>
+    <p>Fill in all details clearly — better descriptions attract better helpers faster</p>
+  </div>
+
+  <div class="post-wrap">
+    <!-- PROGRESS INDICATOR -->
+    <div class="progress-steps" id="progressSteps">
+      <div class="ps-step active" id="ps1"><div class="ps-dot active" id="pd1">1</div><div class="ps-label">Task Type</div></div>
+      <div class="ps-step" id="ps2"><div class="ps-dot" id="pd2">2</div><div class="ps-label">Details</div></div>
+      <div class="ps-step" id="ps3"><div class="ps-dot" id="pd3">3</div><div class="ps-label">Requirements</div></div>
+      <div class="ps-step" id="ps4"><div class="ps-dot" id="pd4">4</div><div class="ps-label">Budget &amp; Files</div></div>
+      <div class="ps-step" id="ps5"><div class="ps-dot" id="pd5">5</div><div class="ps-label">Review &amp; Post</div></div>
+    </div>
+
+    <div class="post-grid">
+      <div>
+
+        <!-- STEP 1: Task Type -->
+        <div class="form-card" id="step1">
+          <div class="section-hdr">
+            <div class="step-num">1</div>
+            <div><h3>Select Assignment Type</h3><span>What kind of help do you need?</span></div>
+          </div>
+          <div class="type-grid" id="typeGrid"></div>
+          <div class="fg" id="typeDescArea" style="display:none;">
+            <label>Task Type Description</label>
+            <div id="selectedTypeDesc" style="font-size:13px;color:var(--steel);background:var(--pale);border:1px solid var(--mist);border-radius:var(--r-sm);padding:.8rem 1rem;line-height:1.7;"></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:1.5rem;">
+            <button class="btn btn-primary" onclick="nextStep(2)">Continue: Add Details →</button>
+          </div>
+        </div>
+
+        <!-- STEP 2: Core Details -->
+        <div class="form-card" id="step2" style="display:none;">
+          <div class="section-hdr">
+            <div class="step-num">2</div>
+            <div><h3>Assignment Details</h3><span>Be specific — vague tasks get fewer responses</span></div>
+          </div>
+
+          <div class="fg">
+            <label class="required">Assignment Title</label>
+            <input type="text" class="fi" id="taskTitle" maxlength="120" placeholder="Write a clear, specific title" oninput="document.getElementById('titleCount').textContent=this.value.length+'/120'">
+            <div class="hint"><span id="titleCount">0/120</span> characters · Tip: include your subject field and specific task</div>
+          </div>
+
+          <div class="grid-2">
+            <div class="fg">
+              <label class="required">Subject Field</label>
+              <select class="fi" id="taskField">
+                <option value="">Select your field</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label class="required">Your University</label>
+              <select class="fi" id="taskUni">
+                <option value="">Select university</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="fg">
+              <label class="required">Degree Program</label>
+              <select class="fi" id="taskDegree">
+                <option value="">Select degree</option>
+                <option>BS / BSc (4-year)</option>
+                <option>MSc (2-year)</option>
+                <option>MPhil (2-year)</option>
+                <option>PhD</option>
+                <option>MBBS / BDS</option>
+                <option>DVM (Vet)</option>
+                <option>Diploma</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label class="required">Academic Year / Semester</label>
+              <select class="fi" id="taskYear">
+                <option value="">Select year/semester</option>
+                <option>1st Year / Semester 1-2</option>
+                <option>2nd Year / Semester 3-4</option>
+                <option>3rd Year / Semester 5-6</option>
+                <option>4th Year / Semester 7-8</option>
+                <option>5th Year / Semester 9-10</option>
+                <option>MS/MPhil Year 1</option>
+                <option>MS/MPhil Year 2</option>
+                <option>PhD Year 1</option>
+                <option>PhD Year 2+</option>
+                <option>Final Year Project</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="fg">
+            <label class="required">Full Description</label>
+            <textarea class="fi" id="taskDesc" rows="7" maxlength="2000" oninput="document.getElementById('descCount').textContent=this.value.length+'/2000'" placeholder="Describe your assignment in full detail:&#10;&#10;• What exactly needs to be done?&#10;• Word count / number of slides / pages required?&#10;• Referencing style: APA, Harvard, Vancouver, HEC format?&#10;• Do you have any existing drafts, notes or outlines to share?&#10;• Any specific topics, authors or studies to include?&#10;• Supervisor or examiner specific requirements?&#10;• Language preference: English, Urdu, or both?&#10;• Any formatting requirements (margins, font, heading style)?"></textarea>
+            <div class="hint"><span id="descCount">0/2000</span> · More detail = more relevant applications</div>
+          </div>
+
+          <div class="fg">
+            <label>Subject / Course Name (optional)</label>
+            <input type="text" class="fi" id="taskCourse" placeholder="e.g. Parasitology-301, Biochemistry Lab, Research Methodology">
+          </div>
+
+          <div class="fg">
+            <label>Supervisor / Professor Name (optional)</label>
+            <input type="text" class="fi" id="taskSupervisor" placeholder="e.g. Prof. Dr. Muhammad Khalil — helps helpers understand expectations">
+          </div>
+
+          <div style="display:flex;justify-content:space-between;margin-top:1.5rem;">
+            <button class="btn btn-secondary" onclick="nextStep(1)">← Back</button>
+            <button class="btn btn-primary" onclick="nextStep(3)">Continue: Requirements →</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Requirements -->
+        <div class="form-card" id="step3" style="display:none;">
+          <div class="section-hdr">
+            <div class="step-num">3</div>
+            <div><h3>Requirements &amp; Urgency</h3><span>Help us match you with the right helper</span></div>
+          </div>
+
+          <div class="grid-2">
+            <div class="fg">
+              <label class="required">Deadline Date</label>
+              <input type="date" class="fi" id="taskDeadline">
+            </div>
+            <div class="fg">
+              <label class="required">Deadline Time</label>
+              <input type="time" class="fi" id="taskDeadlineTime" value="23:59">
+            </div>
+          </div>
+
+          <div class="fg">
+            <label>Urgency Level</label>
+            <div class="urgency-grid" id="urgencyGrid">
+              <div class="urg-opt sel" data-urgency="normal" onclick="setUrgency(this,'normal')"><div class="uo-icon">🟢</div><div class="uo-label">Normal</div><div class="uo-sub">3+ days</div></div>
+              <div class="urg-opt"     data-urgency="high"   onclick="setUrgency(this,'high')"  ><div class="uo-icon">🟡</div><div class="uo-label">High</div><div class="uo-sub">1–3 days</div></div>
+              <div class="urg-opt"     data-urgency="urgent" onclick="setUrgency(this,'urgent')"><div class="uo-icon">🔴</div><div class="uo-label">Urgent</div><div class="uo-sub">Within 24hrs</div></div>
+            </div>
+          </div>
+
+          <div class="fg">
+            <label>Required Skills / Expertise</label>
+            <input type="text" class="fi" id="taskSkills" placeholder="e.g. SPSS, PCR techniques, APA formatting, Urdu writing, R programming">
+            <div class="hint">Separate with commas — helps find helpers with the right background</div>
+          </div>
+
+          <div class="fg">
+            <label>Preferred Language for Work</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:.4rem;" id="langOptions">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;"><input type="checkbox" id="lang_en" value="English" checked style="accent-color:var(--moss);"> English</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;"><input type="checkbox" id="lang_ur" value="Urdu" style="accent-color:var(--moss);"> اردو (Urdu)</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;"><input type="checkbox" id="lang_ps" value="Pashto" style="accent-color:var(--moss);"> پښتو (Pashto)</label>
+            </div>
+          </div>
+
+          <div class="fg">
+            <label>Additional Requirements</label>
+            <div id="reqList" style="background:var(--fog);border:1px solid var(--bd);border-radius:var(--r-sm);padding:.8rem 1rem;">
+              <div class="requirement-row"><span class="req-label">Plagiarism-free work required</span><label class="toggle"><input type="checkbox" id="req_plag" checked><div class="toggle-track"></div></label></div>
+              <div class="requirement-row"><span class="req-label">Turnitin / Urkund report needed</span><label class="toggle"><input type="checkbox" id="req_tur"><div class="toggle-track"></div></label></div>
+              <div class="requirement-row"><span class="req-label">Progress updates while working</span><label class="toggle"><input type="checkbox" id="req_prog" checked><div class="toggle-track"></div></label></div>
+              <div class="requirement-row"><span class="req-label">Source files / references included</span><label class="toggle"><input type="checkbox" id="req_src" checked><div class="toggle-track"></div></label></div>
+              <div class="requirement-row"><span class="req-label">Revisions included (up to 2)</span><label class="toggle"><input type="checkbox" id="req_rev" checked><div class="toggle-track"></div></label></div>
+              <div class="requirement-row"><span class="req-label">Confidentiality / NDA required</span><label class="toggle"><input type="checkbox" id="req_nda"><div class="toggle-track"></div></label></div>
+            </div>
+          </div>
+
+          <div class="fg">
+            <label>Any Other Special Instructions</label>
+            <textarea class="fi" id="taskInstructions" rows="3" placeholder="Any other instructions for the helper that haven't been covered above..."></textarea>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;margin-top:1.5rem;">
+            <button class="btn btn-secondary" onclick="nextStep(2)">← Back</button>
+            <button class="btn btn-primary" onclick="nextStep(4)">Continue: Budget &amp; Files →</button>
+          </div>
+        </div>
+
+        <!-- STEP 4: Budget & Files -->
+        <div class="form-card" id="step4" style="display:none;">
+          <div class="section-hdr">
+            <div class="step-num">4</div>
+            <div><h3>Budget &amp; File Attachments</h3><span>Set a fair price and share any reference materials</span></div>
+          </div>
+
+          <div class="fg">
+            <label class="required">Your Budget (PKR)</label>
+            <div class="fi-prefix-wrap">
+              <span class="fi-pre">₨</span>
+              <input type="number" class="fi" id="taskPay" min="100" max="100000" placeholder="Enter your budget in PKR" oninput="updateBudgetDisplay(this.value)">
+            </div>
+            <div class="hint">Minimum: ₨100 · Platform fee: ₨0 (free forever)</div>
+            <div class="quick-budget mt-1" id="quickBudget">
+              <button class="qb" onclick="setBudget(500)">₨500</button>
+              <button class="qb" onclick="setBudget(1000)">₨1,000</button>
+              <button class="qb" onclick="setBudget(1500)">₨1,500</button>
+              <button class="qb" onclick="setBudget(2000)">₨2,000</button>
+              <button class="qb" onclick="setBudget(3000)">₨3,000</button>
+              <button class="qb" onclick="setBudget(5000)">₨5,000</button>
+              <button class="qb" onclick="setBudget(10000)">₨10,000</button>
+            </div>
+          </div>
+
+          <div class="fg">
+            <label>Payment Preference</label>
+            <select class="fi" id="taskPayMethod">
+              <option value="escrow">Through SciQuest Wallet (Escrow — recommended)</option>
+              <option value="direct">Direct payment (EasyPaisa / JazzCash — agreed between both parties)</option>
+            </select>
+            <div class="hint">Escrow means payment is held safely by SciQuest and released to helper only after you approve the work</div>
+          </div>
+
+          <div class="fg" style="margin-top:1.5rem;">
+            <label>Attach Reference Files <span style="font-size:12px;color:var(--smoke);font-weight:400;">(optional but highly recommended)</span></label>
+            <label class="file-zone" for="taskFile" id="fileZone">
+              <input type="file" id="taskFile" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.txt,.zip" onchange="handleFiles(this)">
+              <div class="fz-icon">📎</div>
+              <div class="fz-main">Drop files here or click to attach</div>
+              <div class="fz-sub">PDF, Word, Excel, PowerPoint, Images, ZIP · Max 10MB per file · Up to 5 files</div>
+            </label>
+            <div id="attachedFilesList"></div>
+          </div>
+
+          <div class="fg">
+            <label>Share via Link (optional)</label>
+            <input type="url" class="fi" id="taskLink" placeholder="Google Drive link, Dropbox link, or any shared file URL">
+            <div class="hint">If your files are already on Drive/Dropbox, paste the share link here</div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;margin-top:1.5rem;">
+            <button class="btn btn-secondary" onclick="nextStep(3)">← Back</button>
+            <button class="btn btn-primary" onclick="nextStep(5)">Review &amp; Post →</button>
+          </div>
+        </div>
+
+        <!-- STEP 5: Review -->
+        <div class="form-card" id="step5" style="display:none;">
+          <div class="section-hdr">
+            <div class="step-num">5</div>
+            <div><h3>Review Your Assignment Posting</h3><span>Check everything before publishing</span></div>
+          </div>
+          <div id="reviewContent" style="background:var(--fog);border-radius:var(--r-md);padding:1.5rem;line-height:1.8;font-size:14px;"></div>
+          <div class="notice warn mt-3">
+            <span class="ni">⚠️</span>
+            <div>
+              <strong>Academic Integrity Reminder</strong>
+              <p>By posting, you confirm this task is for legitimate academic support. SciQuest does not facilitate academic dishonesty. You are responsible for complying with your university's academic integrity policy.</p>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;">
+            <input type="checkbox" id="agreeTerms" style="accent-color:var(--moss);width:16px;height:16px;">
+            <label for="agreeTerms" style="font-size:14px;cursor:pointer;">I agree to the <a href="guidelines.html" style="color:var(--moss);">Community Guidelines</a> and confirm this is a legitimate academic task</label>
+          </div>
+          <div style="display:flex;justify-content:space-between;gap:1rem;">
+            <button class="btn btn-secondary" onclick="nextStep(4)">← Edit</button>
+            <button class="btn btn-primary btn-lg" onclick="submitTask()" style="flex:1;">🚀 Publish Assignment</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SIDEBAR -->
+      <aside>
+        <!-- Pay Display -->
+        <div class="pay-display" id="payDisplay">
+          <div class="pd-label">Your Budget</div>
+          <div class="pd-amount" id="payAmount">₨0</div>
+          <div class="pd-fee">Platform fee: ₨0 always free</div>
+        </div>
+
+        <!-- Tips -->
+        <div class="tip-card">
+          <h5>✨ Tips for Better Responses</h5>
+          <ul>
+            <li>Be specific about word count</li>
+            <li>Mention the referencing style (APA, HEC)</li>
+            <li>Attach your existing notes/drafts</li>
+            <li>Set a fair budget for the work volume</li>
+            <li>Allow realistic deadlines (3+ days)</li>
+            <li>Urdu descriptions are also fine</li>
+          </ul>
+        </div>
+
+        <!-- Active tasks counter -->
+        <div class="sidebar-widget">
+          <h4>📊 Platform Activity</h4>
+          <div style="font-size:13px;color:var(--smoke);line-height:2;">
+            <div>Tasks posted today: <strong id="todayCount" style="color:var(--leaf);">0</strong></div>
+            <div>Active helpers online: <strong style="color:var(--leaf);">24</strong></div>
+            <div>Avg response time: <strong style="color:var(--leaf);">2.4 hrs</strong></div>
+            <div>Tasks completed this week: <strong style="color:var(--leaf);">47</strong></div>
+          </div>
+        </div>
+
+        <!-- Similar tasks -->
+        <div class="sidebar-widget" id="similarWidget" style="display:none;">
+          <h4>🔍 Similar Tasks Posted</h4>
+          <div id="similarList"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+/* ── FORM STATE ── */
+let currentStep = 1;
+let selectedType = '';
+let selectedUrgency = 'normal';
+let attachedFiles = [];
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', () => {
+  const user = DB.getUser();
+  if (!user) { toast('Please sign in to post an assignment.','warning'); setTimeout(()=>location.href='login.html',1000); return; }
+
+  // Fill dropdowns
+  const fs = document.getElementById('taskField');
+  FIELDS.forEach(f => { const o=document.createElement('option'); o.value=f; o.textContent=f; fs.appendChild(o); });
+  if(user.field) fs.value = user.field;
+
+  const us = document.getElementById('taskUni');
+  UNIVERSITIES.forEach(u => { const o=document.createElement('option'); o.value=u; o.textContent=u; us.appendChild(o); });
+  if(user.university) us.value = user.university;
+
+  if(user.degree) document.getElementById('taskDegree').value = user.degree;
+
+  // Min date = tomorrow
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+  document.getElementById('taskDeadline').min = tomorrow.toISOString().split('T')[0];
+
+  // Build task type grid
+  const tg = document.getElementById('typeGrid');
+  Object.entries(TASK_TYPES).forEach(([k, v]) => {
+    const d = document.createElement('div');
+    d.className = 'type-opt';
+    d.dataset.type = k;
+    d.innerHTML = `<div class="to-icon">${v.icon}</div><div class="to-label">${v.label}</div>`;
+    d.addEventListener('click', () => selectType(d, k, v));
+    tg.appendChild(d);
+  });
+
+  // Today's task count
+  const tasks = DB.getTasks();
+  const todayStr = new Date().toDateString();
+  document.getElementById('todayCount').textContent = tasks.filter(t=>new Date(t.createdAt).toDateString()===todayStr).length;
+
+  // Similar tasks
+  showSimilarTasks('');
+});
+
+function selectType(el, k, v) {
+  document.querySelectorAll('.type-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedType = k;
+  document.getElementById('typeDescArea').style.display = 'block';
+  document.getElementById('selectedTypeDesc').textContent = v.desc;
+}
+
+function setUrgency(el, val) {
+  document.querySelectorAll('.urg-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedUrgency = val;
+}
+
+function setBudget(v) {
+  document.getElementById('taskPay').value = v;
+  document.querySelectorAll('.qb').forEach(b=>b.classList.toggle('on', parseInt(b.textContent.replace(/[₨,]/g,'').replace('k','000'))===v));
+  updateBudgetDisplay(v);
+}
+function updateBudgetDisplay(v) {
+  document.getElementById('payAmount').textContent = v ? fmtPKR(v) : '₨0';
+}
+
+function handleFiles(input) {
+  const maxSize = 10*1024*1024;
+  Array.from(input.files).forEach(f => {
+    if(attachedFiles.length >= 5) { toast('Maximum 5 files allowed.','warning'); return; }
+    if(f.size > maxSize) { toast(`${f.name} is too large (max 10MB).`,'warning'); return; }
+    if(attachedFiles.find(x=>x.name===f.name)) return;
+    attachedFiles.push(f);
+  });
+  renderAttachedFiles();
+  document.getElementById('fileZone').classList.toggle('has-file', attachedFiles.length>0);
+}
+
+function renderAttachedFiles() {
+  const el = document.getElementById('attachedFilesList');
+  el.innerHTML = attachedFiles.map((f,i) => `
+    <div class="attached-file">
+      <span class="af-icon">${getFileIcon(f.name)}</span>
+      <span class="af-name">${escHtml(f.name)}</span>
+      <span class="af-size">${(f.size/1024).toFixed(0)} KB</span>
+      <button class="af-rm" onclick="removeFile(${i})">×</button>
+    </div>`).join('');
+}
+function removeFile(i) { attachedFiles.splice(i,1); renderAttachedFiles(); document.getElementById('fileZone').classList.toggle('has-file',attachedFiles.length>0); }
+function getFileIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  const icons={pdf:'📄',doc:'📝',docx:'📝',xls:'📊',xlsx:'📊',ppt:'📽',pptx:'📽',jpg:'🖼',jpeg:'🖼',png:'🖼',zip:'🗜',txt:'📃'};
+  return icons[ext]||'📎';
+}
+
+function showSimilarTasks(field) {
+  const tasks = DB.getTasks().filter(t=>!field||t.field===field).slice(0,4);
+  if(!tasks.length) { document.getElementById('similarWidget').style.display='none'; return; }
+  document.getElementById('similarWidget').style.display='block';
+  document.getElementById('similarList').innerHTML = tasks.map(t=>`
+    <div class="similar-item" onclick="location.href='task-detail.html?id=${t.id}'">
+      <div style="font-size:13px;font-weight:600;">${escHtml(t.title.slice(0,52))}${t.title.length>52?'...':''}</div>
+      <div style="font-size:12px;color:var(--smoke);margin-top:2px;display:flex;justify-content:space-between;">
+        <span>${escHtml(t.field)}</span><span style="color:var(--moss);font-weight:700;">${fmtPKR(t.pay)}</span>
+      </div>
+    </div>`).join('');
+}
+
+/* ── STEP NAVIGATION ── */
+function nextStep(n) {
+  // Validate current step
+  if (n > currentStep) {
+    if (!validateStep(currentStep)) return;
+  }
+
+  document.getElementById('step'+currentStep).style.display='none';
+  currentStep = n;
+  document.getElementById('step'+n).style.display='block';
+
+  // Update progress
+  for(let i=1;i<=5;i++){
+    const dot=document.getElementById('pd'+i);
+    const step=document.getElementById('ps'+i);
+    if(i<n)      { dot.className='ps-dot done'; dot.textContent='✓'; step.className='ps-step'; }
+    else if(i===n){ dot.className='ps-dot active'; dot.textContent=i; step.className='ps-step active'; }
+    else          { dot.className='ps-dot'; dot.textContent=i; step.className='ps-step'; }
+  }
+
+  if(n===5) buildReview();
+  if(n===3) {
+    const field=document.getElementById('taskField').value;
+    showSimilarTasks(field);
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function validateStep(n) {
+  if(n===1) {
+    if(!selectedType) { toast('Please select an assignment type.','warning'); return false; }
+  }
+  if(n===2) {
+    const title=document.getElementById('taskTitle').value.trim();
+    const field=document.getElementById('taskField').value;
+    const uni=document.getElementById('taskUni').value;
+    const degree=document.getElementById('taskDegree').value;
+    const year=document.getElementById('taskYear').value;
+    const desc=document.getElementById('taskDesc').value.trim();
+    if(!title)  { markErr('taskTitle','Please enter a task title.'); return false; }
+    if(!field)  { markErr('taskField','Please select your field.'); return false; }
+    if(!uni)    { markErr('taskUni','Please select your university.'); return false; }
+    if(!degree) { markErr('taskDegree','Please select your degree.'); return false; }
+    if(!year)   { markErr('taskYear','Please select your year/semester.'); return false; }
+    if(desc.length < 50) { markErr('taskDesc','Please describe your task in at least 50 characters.'); return false; }
+  }
+  if(n===3) {
+    if(!document.getElementById('taskDeadline').value) { markErr('taskDeadline','Please set a deadline.'); return false; }
+  }
+  if(n===4) {
+    const pay=parseInt(document.getElementById('taskPay').value);
+    if(!pay || pay < 100) { markErr('taskPay','Minimum budget is ₨100.'); return false; }
+  }
+  if(n===5) {
+    if(!document.getElementById('agreeTerms').checked) { toast('Please agree to the Community Guidelines.','warning'); return false; }
+  }
+  return true;
+}
+
+function markErr(id, msg) {
+  const el=document.getElementById(id);
+  if(!el) return;
+  const fg=el.closest('.fg');
+  if(fg){ fg.classList.add('has-error'); const e=fg.querySelector('.err'); if(e){e.textContent=msg;} else { const d=document.createElement('div'); d.className='err'; d.textContent=msg; fg.appendChild(d); } }
+  el.focus(); toast(msg,'warning');
+  el.addEventListener('input',()=>fg?.classList.remove('has-error'),{once:true});
+  el.addEventListener('change',()=>fg?.classList.remove('has-error'),{once:true});
+}
+
+function buildReview() {
+  const typeInfo=TASK_TYPES[selectedType]||{label:'Task',icon:'📋'};
+  const pay=parseInt(document.getElementById('taskPay').value)||0;
+  const deadline=document.getElementById('taskDeadline').value;
+  const dl=deadline?fmtDate(deadline):'Not set';
+  const langs=['lang_en','lang_ur','lang_ps'].filter(id=>document.getElementById(id).checked).map(id=>document.getElementById(id).value).join(', ');
+
+  document.getElementById('reviewContent').innerHTML = `
+    <table style="width:100%;font-size:14px;">
+      ${row('Type', typeInfo.icon+' '+typeInfo.label)}
+      ${row('Title', escHtml(document.getElementById('taskTitle').value))}
+      ${row('Field', escHtml(document.getElementById('taskField').value))}
+      ${row('University', escHtml(document.getElementById('taskUni').value))}
+      ${row('Degree', escHtml(document.getElementById('taskDegree').value))}
+      ${row('Year/Sem', escHtml(document.getElementById('taskYear').value))}
+      ${row('Deadline', dl)}
+      ${row('Urgency', {normal:'🟢 Normal',high:'🟡 High',urgent:'🔴 Urgent'}[selectedUrgency])}
+      ${row('Budget', '<strong style="color:var(--moss);font-size:1.1rem;">'+fmtPKR(pay)+'</strong>')}
+      ${row('Payment', document.getElementById('taskPayMethod').value==='escrow'?'SciQuest Escrow (Recommended)':'Direct Payment')}
+      ${row('Languages', langs||'Not specified')}
+      ${row('Skills Needed', escHtml(document.getElementById('taskSkills').value)||'Not specified')}
+      ${row('Files', attachedFiles.length>0?attachedFiles.map(f=>escHtml(f.name)).join(', '):'None attached')}
+      ${document.getElementById('taskLink').value?row('Shared Link',escHtml(document.getElementById('taskLink').value)):''}
+    </table>`;
+}
+function row(k,v){ return `<tr><td style="padding:6px 0;color:var(--smoke);width:130px;font-weight:500;vertical-align:top;">${k}</td><td style="padding:6px 0 6px 12px;">${v}</td></tr>`; }
+
+function submitTask() {
+  if(!validateStep(5)) return;
+  const user=DB.getUser();
+  const typeInfo=TASK_TYPES[selectedType];
+
+  const task = {
+    id: 'task_'+uid(),
+    type: selectedType,
+    title: document.getElementById('taskTitle').value.trim(),
+    description: document.getElementById('taskDesc').value.trim(),
+    field: document.getElementById('taskField').value,
+    university: document.getElementById('taskUni').value,
+    degree: document.getElementById('taskDegree').value,
+    year: document.getElementById('taskYear').value,
+    course: document.getElementById('taskCourse').value.trim(),
+    supervisor: document.getElementById('taskSupervisor').value.trim(),
+    deadline: document.getElementById('taskDeadline').value+'T'+document.getElementById('taskDeadlineTime').value,
+    urgency: selectedUrgency,
+    pay: parseInt(document.getElementById('taskPay').value),
+    payMethod: document.getElementById('taskPayMethod').value,
+    skills: document.getElementById('taskSkills').value.split(',').map(s=>s.trim()).filter(Boolean),
+    languages: ['lang_en','lang_ur','lang_ps'].filter(id=>document.getElementById(id).checked).map(id=>document.getElementById(id).value),
+    requirements: {
+      plagFree: document.getElementById('req_plag').checked,
+      turnitin:  document.getElementById('req_tur').checked,
+      progress:  document.getElementById('req_prog').checked,
+      sources:   document.getElementById('req_src').checked,
+      revisions: document.getElementById('req_rev').checked,
+      nda:       document.getElementById('req_nda').checked,
+    },
+    instructions: document.getElementById('taskInstructions').value.trim(),
+    sharedLink: document.getElementById('taskLink').value.trim(),
+    fileNames: attachedFiles.map(f=>f.name),
+    posterName: user.name,
+    posterInitials: user.initials||initials(user.name),
+    posterColor: user.color||'#1a4a2e',
+    posterId: user.email,
+    status: 'pending_approval',
+    applicants: 0,
+    createdAt: Date.now(),
+    urgent: selectedUrgency==='urgent',
+  };
+
+  DB.saveTask(task);
+  DB.addNotif({type:'task',icon:'✅',bg:'#f0fdf4',title:'Assignment posted — pending admin approval',body:`"${task.title.slice(0,50)}" has been submitted. It will be reviewed and published shortly.`});
+
+  showProcessing('Publishing your assignment...','Submitting to admin for approval');
+  setTimeout(()=>{
+    showSuccess('Assignment Posted! ✓','Your assignment is now pending admin approval. You will be notified when it goes live. Helpers can start applying soon.');
+    document.getElementById('sqProcBtn').textContent = 'View My Tasks →';
+    document.getElementById('sqProcBtn').onclick = ()=>location.href='my-tasks.html';
+    document.getElementById('sqProcBtn').style.display='block';
+  }, 2000);
+}
+</script>
+</body>
+</html>

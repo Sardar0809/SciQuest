@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How It Works & FAQ — SciQuest</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/landing.css">
+<style>
+.hiw-section { padding: 5rem 1.5rem; }
+.hiw-section:nth-child(even) { background: var(--sand); }
+.hiw-container { max-width: 900px; margin: 0 auto; }
+.big-steps { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; margin-bottom: 4rem; }
+.big-steps.reverse { direction: rtl; }
+.big-steps.reverse > * { direction: ltr; }
+.big-step-num { font-family: var(--font-display); font-size: 5rem; color: var(--mist); line-height: 1; margin-bottom: 0.5rem; }
+.big-step-title { font-family: var(--font-display); font-size: 1.8rem; color: var(--leaf); margin-bottom: 0.8rem; }
+.big-step-desc { font-size: 15px; color: #555; line-height: 1.75; }
+.big-step-visual { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-md); }
+.payment-methods { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+.pm-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.2rem; text-align: center; }
+.pm-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.pm-name { font-size: 14px; font-weight: 700; color: var(--ink); }
+.pm-sub { font-size: 12px; color: #888; margin-top: 3px; }
+.faq-section { padding: 5rem 1.5rem; background: var(--cream); }
+.faq-container { max-width: 760px; margin: 0 auto; }
+.faq-item { border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 0.8rem; overflow: hidden; }
+.faq-q { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 1.5rem; font-size: 15px; font-weight: 600; color: var(--ink); cursor: pointer; background: white; transition: background 0.2s; gap: 1rem; }
+.faq-q:hover { background: var(--sand); }
+.faq-q .faq-arrow { color: var(--moss); font-size: 1.1rem; transition: transform 0.25s; flex-shrink: 0; }
+.faq-a { display: none; padding: 0 1.5rem 1.2rem; font-size: 14px; color: #555; line-height: 1.75; background: white; border-top: 1px solid var(--border); }
+.faq-item.open .faq-a { display: block; }
+.faq-item.open .faq-arrow { transform: rotate(180deg); }
+.faq-categories { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 2rem; }
+</style>
+</head>
+<body>
+<div class="particles" id="particles"></div>
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">Sci<span>Quest</span></a>
+    <div class="nav-center">
+      <a href="browse.html" class="nav-link">Browse Tasks</a>
+      <a href="how-it-works.html" class="nav-link active">How It Works</a>
+      <a href="leaderboard.html" class="nav-link">Leaderboard</a>
+    </div>
+    <div class="nav-right" id="navRight">
+      <a href="login.html" class="btn-ghost">Sign In</a>
+      <a href="register.html" class="btn-nav-cta">Join Free</a>
+      <button class="hamburger" id="hamburger">&#9776;</button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobileMenu"><a href="browse.html">Browse</a><a href="login.html">Sign In</a></div>
+</nav>
+
+<div class="main-content">
+  <div class="page-header">
+    <h1>How SciQuest Works</h1>
+    <p>Everything you need to know to post tasks, find help, and earn money</p>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="hiw-section">
+    <div class="hiw-container">
+      <div class="big-steps">
+        <div>
+          <div class="big-step-num">01</div>
+          <div class="big-step-title">Create Your Free Profile</div>
+          <div class="big-step-desc">Sign up with your university email in under 2 minutes. Choose your role — Task Poster, Task Helper, or both. Add your degree, field, skills, and a short bio. Your profile becomes your academic identity on the platform.<br><br>You can change your role and update your profile anytime.</div>
+          <div style="margin-top:1.5rem;">
+            <a href="register.html" class="btn-primary">Create Profile Free →</a>
+          </div>
+        </div>
+        <div class="big-step-visual">
+          <div style="text-align:center;padding:1rem;">
+            <div class="avatar avatar-xl" style="background:#1a4a2e;margin:0 auto 1rem;">AH</div>
+            <div style="font-family:var(--font-display);font-size:1.2rem;color:var(--leaf);">Your Name</div>
+            <div style="font-size:13px;color:#888;">Your Degree · Your University</div>
+            <div style="display:flex;gap:6px;justify-content:center;margin-top:0.8rem;flex-wrap:wrap;">
+              <span style="background:var(--mist);color:var(--moss);font-size:12px;padding:3px 10px;border-radius:20px;">Thesis Writing</span>
+              <span style="background:var(--mist);color:var(--moss);font-size:12px;padding:3px 10px;border-radius:20px;">SPSS</span>
+              <span style="background:var(--mist);color:var(--moss);font-size:12px;padding:3px 10px;border-radius:20px;">Parasitology</span>
+            </div>
+            <div style="margin-top:1rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;">
+              <div style="background:var(--sand);border-radius:8px;padding:0.7rem;text-align:center;"><div style="font-family:var(--font-display);font-size:1.3rem;color:var(--moss);">23</div><div style="font-size:11px;color:#888;">Tasks Done</div></div>
+              <div style="background:var(--sand);border-radius:8px;padding:0.7rem;text-align:center;"><div style="font-family:var(--font-display);font-size:1.3rem;color:var(--moss);">4.9</div><div style="font-size:11px;color:#888;">Rating</div></div>
+              <div style="background:var(--sand);border-radius:8px;padding:0.7rem;text-align:center;"><div style="font-family:var(--font-display);font-size:1.3rem;color:var(--moss);">#1</div><div style="font-size:11px;color:#888;">This Week</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="big-steps reverse">
+        <div>
+          <div class="big-step-num">02</div>
+          <div class="big-step-title">Post or Browse Tasks</div>
+          <div class="big-step-desc"><strong>If you need help:</strong> Post a task describing what you need, your budget in PKR, and your deadline. Add a file attachment if useful. Tasks are reviewed and go live within 2 hours.<br><br><strong>If you want to earn:</strong> Browse open tasks filtered by your field, type, and budget. Find a task that matches your skills and click Accept.</div>
+        </div>
+        <div class="big-step-visual">
+          <div style="background:var(--sand);border-radius:8px;padding:0.8rem;margin-bottom:0.8rem;">
+            <div style="font-size:11px;font-weight:700;color:var(--leaf);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Thesis</div>
+            <div style="font-size:14px;font-weight:600;">MPhil Synopsis on Helminths in River Kabul</div>
+            <div style="font-size:12px;color:#888;margin-top:4px;">Parasitology · Urgent · 8 days left</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+              <span style="font-family:var(--font-display);font-size:1.2rem;color:var(--moss);">₨2,200</span>
+              <button style="background:var(--leaf);color:white;border:none;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);">Accept Task</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <span style="font-size:11px;padding:5px 12px;border-radius:20px;background:white;border:1px solid var(--border);color:#555;">All Tasks</span>
+            <span style="font-size:11px;padding:5px 12px;border-radius:20px;background:var(--leaf);color:white;">Parasitology</span>
+            <span style="font-size:11px;padding:5px 12px;border-radius:20px;background:white;border:1px solid var(--border);color:#555;">Thesis</span>
+            <span style="font-size:11px;padding:5px 12px;border-radius:20px;background:white;border:1px solid var(--border);color:#555;">Urgent</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 — PAYMENT -->
+  <div class="hiw-section">
+    <div class="hiw-container">
+      <div style="text-align:center;margin-bottom:3rem;">
+        <div class="section-tag">Step 03</div>
+        <h2 class="section-title">Deliver Work & Get Paid Directly</h2>
+        <p style="color:#666;max-width:560px;margin:0 auto;font-size:15px;line-height:1.75;">The helper completes the task, the poster reviews and approves, then pays directly. SciQuest charges zero fees — ever. Payment goes 100% to the helper.</p>
+      </div>
+      <div class="payment-methods">
+        <div class="pm-card"><div class="pm-icon">💚</div><div class="pm-name">EasyPaisa</div><div class="pm-sub">Most popular in Pakistan</div></div>
+        <div class="pm-card"><div class="pm-icon">🧡</div><div class="pm-name">JazzCash</div><div class="pm-sub">Instant mobile transfer</div></div>
+        <div class="pm-card"><div class="pm-icon">🏦</div><div class="pm-name">Bank Transfer</div><div class="pm-sub">All major Pakistani banks</div></div>
+      </div>
+      <div style="background:var(--mist);border-radius:var(--radius-md);padding:1.5rem;margin-top:2rem;text-align:center;">
+        <strong style="color:var(--leaf);font-size:1.1rem;">SciQuest Platform Fee: ₨0</strong>
+        <p style="color:#555;margin-top:0.5rem;font-size:14px;">We are a free community platform. 100% of the agreed amount goes to the student helper. We fund operations through future optional premium features.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD EXPLAINER -->
+  <div class="hiw-section">
+    <div class="hiw-container">
+      <div style="text-align:center;margin-bottom:2rem;">
+        <div class="section-tag">Weekly Leaderboard</div>
+        <h2 class="section-title">Earn Points. Climb the Ranks. <em>Win Recognition.</em></h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;">
+        ${[['✅','Complete a task','Earn 1 point per completed and approved task'],['⭐','Get 5-star review','Earn 0.5 bonus points for excellence'],['🚀','Complete urgent task','Earn 0.5 bonus for fast delivery'],['🏆','Top 3 weekly finish','Win a visible gold/silver/bronze badge on profile'],['🔄','Weekly reset','Board resets every Sunday — everyone starts fresh'],['📊','Field rankings','Filter leaderboard by your specific field'],].map(([i,t,d])=>`
+          <div style="background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:1.3rem;text-align:center;">
+            <div style="font-size:2rem;margin-bottom:0.6rem;">${i}</div>
+            <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:0.4rem;">${t}</div>
+            <div style="font-size:13px;color:#666;line-height:1.6;">${d}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq-section">
+    <div class="faq-container">
+      <div style="text-align:center;margin-bottom:2.5rem;">
+        <div class="section-tag">Got Questions?</div>
+        <h2 class="section-title">Frequently Asked <em>Questions</em></h2>
+      </div>
+      <div id="faqList"></div>
+      <div style="text-align:center;margin-top:2rem;padding:1.5rem;background:white;border-radius:var(--radius-md);border:1px solid var(--border);">
+        <strong>Still have questions?</strong>
+        <p style="color:#888;font-size:14px;margin-top:0.4rem;">Contact us at <a href="mailto:saeedullahbacha048@gmail.com" style="color:var(--moss);">saeedullahbacha048@gmail.com</a> or join our WhatsApp support group.</p>
+        <a href="contact.html" class="btn-primary" style="margin-top:1rem;display:inline-block;">Contact Us →</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/main.js"></script>
+<script>
+const faqs = [
+  {q:'Is SciQuest really free?',a:'Yes, completely. SciQuest charges zero platform fees. You post tasks for free, you accept tasks for free, and 100% of the agreed payment goes directly from the poster to the helper. We are funded by the community and future optional premium features.'},
+  {q:'Who can join SciQuest?',a:'Any science, biology, or related field student from a Pakistani university can join. We currently support BS, MSc, MPhil, and PhD students. You need a university email for verification. We plan to expand to all degree programs.'},
+  {q:'Is this academic dishonesty?',a:'SciQuest is designed for legitimate academic support. Survey filling, data collection, presentation design, and peer tutoring are all legitimate. For thesis and synopsis writing assistance, it is your responsibility to ensure compliance with your university\'s academic integrity policy. SciQuest does not endorse academic dishonesty.'},
+  {q:'How does payment work?',a:'Payment is handled directly between students, not through SciQuest. The poster agrees on a price with the helper, and pays via EasyPaisa, JazzCash, or bank transfer after approving the completed work. We recommend agreeing on payment upfront and using a trusted method.'},
+  {q:'What if the work quality is poor?',a:'You can decline to pay if the work does not meet the agreed standards. Leave an honest rating so other students know. For disputes, contact our admin team and we will mediate. Helpers with consistently low ratings will be reviewed and may be removed.'},
+  {q:'How do I contact the person who accepted my task?',a:'Once a student accepts your task, their WhatsApp number or email (if shared) will be revealed to you. You can also use the SciQuest messaging system to communicate directly within the platform.'},
+  {q:'Can I post tasks in Urdu?',a:'Yes! You can write your task title, description, and communication entirely in Urdu. The platform supports both English and Urdu content. Many students prefer Urdu for clarity.'},
+  {q:'How does the leaderboard work?',a:'The leaderboard ranks helpers by the number of tasks they complete each week. It resets every Sunday at midnight. Top 3 helpers receive a gold, silver, and bronze badge on their profile. You can also filter the leaderboard by academic field.'},
+  {q:'What if a helper disappears after accepting a task?',a:'If a helper accepts a task and stops responding, you can report the issue to admin. Unreliable helpers will receive a warning and may be suspended. Always check a helper\'s rating and history before awarding a task.'},
+  {q:'Is my personal information safe?',a:'We collect only the minimum information needed: name, university, email, and field. Your WhatsApp number is only shown to users you are working with. We never sell your data. See our Privacy Policy for details.'},
+];
+
+document.getElementById('faqList').innerHTML = faqs.map((f,i)=>`
+  <div class="faq-item" id="faq${i}">
+    <div class="faq-q" onclick="toggleFAQ(${i})">
+      <span>${f.q}</span>
+      <span class="faq-arrow">▾</span>
+    </div>
+    <div class="faq-a">${f.a}</div>
+  </div>
+`).join('');
+
+function toggleFAQ(i) {
+  const item = document.getElementById('faq'+i);
+  const wasOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(x=>x.classList.remove('open'));
+  if(!wasOpen) item.classList.add('open');
+}
+</script>
+</body>
+</html>

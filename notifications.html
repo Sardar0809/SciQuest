@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications — SciQuest</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/app.css">
+<style>
+.notif-body { max-width:720px; margin:2rem auto; padding:0 1.5rem 4rem; }
+.notif-item { display:flex; gap:14px; align-items:flex-start; padding:1rem 1.2rem; border-radius:var(--radius-md); margin-bottom:.6rem; border:1px solid var(--border); background:white; transition:all .2s; cursor:pointer; }
+.notif-item.unread { background:#f0f9f4; border-color:rgba(82,183,136,.3); }
+.notif-item:hover { box-shadow:var(--shadow-sm); }
+.notif-icon { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; }
+.notif-content { flex:1; }
+.notif-title { font-size:14px; font-weight:600; color:var(--ink); }
+.notif-body-text { font-size:13px; color:#666; margin-top:3px; line-height:1.55; }
+.notif-time { font-size:11px; color:#aaa; margin-top:4px; }
+.notif-unread-dot { width:8px; height:8px; border-radius:50%; background:var(--fern); flex-shrink:0; margin-top:6px; }
+</style>
+</head>
+<body>
+<div class="particles" id="particles"></div>
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">Sci<span>Quest</span></a>
+    <div class="nav-center"><a href="browse.html" class="nav-link">Browse Tasks</a><a href="dashboard.html" class="nav-link">Dashboard</a></div>
+    <div class="nav-right" id="navRight"><a href="login.html" class="btn-ghost">Sign In</a><a href="register.html" class="btn-nav-cta">Join Free</a><button class="hamburger" id="hamburger">&#9776;</button></div>
+  </div>
+  <div class="mobile-menu" id="mobileMenu"><a href="dashboard.html">Dashboard</a></div>
+</nav>
+<div class="main-content">
+  <div class="page-header"><h1>🔔 Notifications</h1><p>Stay updated on your tasks, payments and messages</p></div>
+  <div class="notif-body">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;flex-wrap:wrap;gap:.5rem;">
+      <span id="notifCountLabel" style="font-size:14px;color:#888;"></span>
+      <button class="btn-secondary btn-sm" onclick="markAllRead()">Mark all as read</button>
+    </div>
+    <div id="notifList"></div>
+  </div>
+</div>
+<script src="js/app.js"></script>
+<script src="js/main.js"></script>
+<script>
+const DEFAULT_NOTIFS = [
+  {id:'n1', read:false, type:'payment', icon:'💳', bg:'#f0fdf4', title:'Payment pending admin approval', body:'Your deposit of ₨3,000 via EasyPaisa is pending admin approval. You will be notified once confirmed.', time:'Today, 11:30 AM', link:'wallet.html'},
+  {id:'n2', read:false, type:'message', icon:'💬', bg:'#eff6ff', title:'New message from Fatima Rao', body:'Have you started on the objectives section of my synopsis?', time:'Today, 10:24 AM', link:'messages.html?convo=c1'},
+  {id:'n3', read:false, type:'task', icon:'✅', bg:'#f0fdf4', title:'Task application accepted', body:'Zara Malik has accepted your application for "Results & Discussion — Protozoan Parasite Study".', time:'Yesterday, 3:15 PM', link:'my-tasks.html'},
+  {id:'n4', read:true, type:'payment', icon:'💰', bg:'#fef3c7', title:'Payment released from escrow', body:'₨5,000 has been released from escrow to your wallet. Task: Chapter 4 Results & Discussion.', time:'Mar 15, 9:00 AM', link:'wallet.html'},
+  {id:'n5', read:true, type:'rating', icon:'⭐', bg:'#fef3c7', title:'New 5-star rating received', body:'Zara Malik gave you a 5-star review: "Excellent editing, very professional and on time!"', time:'Mar 15, 8:45 AM', link:'profile.html'},
+  {id:'n6', read:true, type:'task', icon:'📋', bg:'#f5f3ff', title:'New task in your field', body:'A new Parasitology task has been posted: "Literature Review on Malaria Parasite Drug Resistance". Budget: ₨3,500.', time:'Mar 14, 6:20 PM', link:'browse.html'},
+  {id:'n7', read:true, type:'system', icon:'🔒', bg:'#fef2f2', title:'Account verified', body:'Your student account has been verified by the SciQuest admin team. You can now post and accept tasks.', time:'Mar 10, 12:00 PM', link:'profile.html'},
+];
+
+document.addEventListener('DOMContentLoaded', () => {
+  const user = store.get('sq_user');
+  if (!user) { window.location.href='login.html'; return; }
+
+  let notifs = store.notifications();
+  if (!notifs.length) { store.set('sq_notifications', DEFAULT_NOTIFS); notifs = DEFAULT_NOTIFS; }
+  renderNotifs(notifs);
+});
+
+function renderNotifs(notifs) {
+  const unread = notifs.filter(n=>!n.read).length;
+  document.getElementById('notifCountLabel').textContent = `${notifs.length} notifications · ${unread} unread`;
+  if (!notifs.length) {
+    document.getElementById('notifList').innerHTML='<div style="text-align:center;padding:4rem;color:#888;"><div style="font-size:3rem;margin-bottom:1rem;">🔔</div><strong>All caught up!</strong><p style="margin-top:.5rem;font-size:14px;">No notifications yet.</p></div>';
+    return;
+  }
+  document.getElementById('notifList').innerHTML = notifs.map(n=>`
+    <div class="notif-item ${n.read?'':'unread'}" onclick="readNotif('${n.id}','${n.link||'#'}')">
+      <div class="notif-icon" style="background:${n.bg||'#f1f5f9'}">${n.icon||'🔔'}</div>
+      <div class="notif-content">
+        <div class="notif-title">${n.title}</div>
+        <div class="notif-body-text">${n.body}</div>
+        <div class="notif-time">${n.time}</div>
+      </div>
+      ${!n.read?'<div class="notif-unread-dot"></div>':''}
+    </div>
+  `).join('');
+}
+
+function readNotif(id, link) {
+  const notifs = store.notifications();
+  const n = notifs.find(x=>x.id===id);
+  if(n) n.read=true;
+  store.set('sq_notifications', notifs);
+  updateNotifBadge();
+  if(link && link!=='#') window.location.href=link;
+  else renderNotifs(notifs);
+}
+
+function markAllRead() {
+  const notifs = store.notifications().map(n=>({...n,read:true}));
+  store.set('sq_notifications', notifs);
+  renderNotifs(notifs);
+  updateNotifBadge();
+  showToast('All notifications marked as read.');
+}
+</script>
+</body>
+</html>

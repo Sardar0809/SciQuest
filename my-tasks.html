@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Tasks — SciQuest</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/app.css">
+<style>
+.my-tasks-body { max-width: 1000px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.task-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 2rem; }
+.task-tab { padding: 12px 24px; font-size: 15px; font-weight: 600; color: #888; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; font-family: var(--font-body); background: none; border-top: none; border-left: none; border-right: none; }
+.task-tab.active { color: var(--leaf); border-bottom-color: var(--leaf); }
+.task-tab .count { background: var(--mist); color: var(--moss); font-size: 11px; padding: 2px 7px; border-radius: 10px; margin-left: 6px; font-weight: 700; }
+.task-status-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.4rem 1.5rem; margin-bottom: 1rem; }
+.task-status-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0.8rem; }
+.task-status-title { font-size: 15px; font-weight: 700; color: var(--ink); flex: 1; }
+.task-status-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.task-progress-bar { height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+.task-progress-fill { height: 100%; border-radius: 3px; transition: width 1s; }
+.task-meta-row { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: #888; }
+.helper-chip { display: flex; align-items: center; gap: 6px; background: var(--sand); border-radius: 20px; padding: 5px 12px; font-size: 13px; }
+.no-tasks-state { text-align: center; padding: 4rem 2rem; color: #888; }
+.no-tasks-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.rating-stars { display: flex; gap: 4px; }
+.rating-star { font-size: 1.4rem; cursor: pointer; color: #e5e7eb; transition: color 0.1s; }
+.rating-star.filled, .rating-star:hover { color: #f59e0b; }
+</style>
+</head>
+<body>
+<div class="particles" id="particles"></div>
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">Sci<span>Quest</span></a>
+    <div class="nav-center">
+      <a href="browse.html" class="nav-link">Browse Tasks</a>
+      <a href="leaderboard.html" class="nav-link">Leaderboard</a>
+    </div>
+    <div class="nav-right" id="navRight">
+      <a href="login.html" class="btn-ghost">Sign In</a>
+      <a href="register.html" class="btn-nav-cta">Join Free</a>
+      <button class="hamburger" id="hamburger">&#9776;</button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobileMenu"><a href="browse.html">Browse</a></div>
+</nav>
+
+<div class="main-content">
+  <div class="page-header">
+    <h1>My Tasks</h1>
+    <p>Track your posted tasks and work you've accepted</p>
+  </div>
+
+  <div class="my-tasks-body">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+      <div class="task-tabs">
+        <button class="task-tab active" onclick="switchTab(this,'posted')">Tasks I Posted <span class="count">5</span></button>
+        <button class="task-tab" onclick="switchTab(this,'accepted')">Tasks I'm Doing <span class="count">2</span></button>
+        <button class="task-tab" onclick="switchTab(this,'completed')">Completed <span class="count">23</span></button>
+      </div>
+      <a href="post-task.html" class="btn-primary">+ Post New Task</a>
+    </div>
+
+    <!-- POSTED TAB -->
+    <div class="tab-content active" id="tab-posted">
+      <div id="postedList"></div>
+    </div>
+
+    <!-- ACCEPTED TAB -->
+    <div class="tab-content" id="tab-accepted">
+      <div id="acceptedList"></div>
+    </div>
+
+    <!-- COMPLETED TAB -->
+    <div class="tab-content" id="tab-completed">
+      <div id="completedList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RATE MODAL -->
+<div class="modal-overlay" id="rateModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Rate & Review</div>
+      <button class="modal-close" onclick="closeRate()">×</button>
+    </div>
+    <p style="font-size:14px;color:#555;margin-bottom:1.2rem;">How was the work delivered by <strong id="rateHelperName">the helper</strong>?</p>
+    <div style="text-align:center;margin-bottom:1.2rem;">
+      <div class="rating-stars" style="justify-content:center;" id="ratingStars"></div>
+    </div>
+    <div class="form-group"><label>Write a Review (optional)</label>
+      <textarea id="reviewText" placeholder="Describe the quality of work, communication, timeliness..." rows="4"></textarea>
+    </div>
+    <button class="btn-primary w-full" onclick="submitRating()">Submit Rating →</button>
+  </div>
+</div>
+
+<!-- MARK DONE MODAL -->
+<div class="modal-overlay" id="doneModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Mark Task as Complete</div>
+      <button class="modal-close" onclick="document.getElementById('doneModal').classList.remove('open')">×</button>
+    </div>
+    <p style="font-size:14px;color:#555;margin-bottom:1.2rem;">Confirm you have received and approved the completed work. This will release the payment confirmation and award points.</p>
+    <div style="background:var(--mist);border-radius:var(--radius-sm);padding:1rem;margin-bottom:1.2rem;font-size:13px;color:var(--moss);">
+      💡 Remember: Payment is done directly between you and the helper via EasyPaisa/JazzCash. Marking complete awards them leaderboard points.
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn-secondary" style="flex:1;" onclick="document.getElementById('doneModal').classList.remove('open')">Cancel</button>
+      <button class="btn-primary" style="flex:1;" onclick="confirmDone()">✓ Confirm Complete</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/main.js"></script>
+<script>
+const postedTasks = [
+  {id:4,title:'MPhil Synopsis Writing — Helminths in Freshwater Fish',type:'synopsis',pay:2200,helpers:[{name:'Ayesha H.',color:'#1a4a2e',initials:'AH'}],status:'in-progress',progress:60,deadline:'2025-08-12'},
+  {id:1,title:'Help with Thesis Chapter 2 — Literature Review on Malaria',type:'thesis',pay:3500,helpers:[{name:'Bilal M.',color:'#4f46e5',initials:'BM'},{name:'Sara Z.',color:'#9d174d',initials:'SZ'}],status:'open',progress:0,deadline:'2025-08-10'},
+  {id:3,title:'PowerPoint Presentation on CRISPR-Cas9 Gene Editing',type:'presentation',pay:1800,helpers:[],status:'open',progress:0,deadline:'2025-08-05'},
+  {id:5,title:'Statistical Analysis of Field Survey Data Using SPSS',type:'data',pay:4000,helpers:[{name:'Tariq A.',color:'#b45309',initials:'TA'}],status:'review',progress:90,deadline:'2025-08-08'},
+  {id:7,title:'Chapter 4 Results & Discussion — Comparative Study',type:'thesis',pay:5000,helpers:[],status:'open',progress:0,deadline:'2025-07-28'},
+];
+
+const acceptedTasks = [
+  {id:6,title:'Literature Review on Antibiotic Resistance in Hospital-acquired Infections',type:'literature',pay:3000,poster:{name:'Nadia Saeed',initials:'NS',color:'#1d4ed8'},progress:45,deadline:'2025-08-15'},
+  {id:2,title:'Fill Survey on Lab Safety Practices',type:'survey',pay:300,poster:{name:'Sana Khalil',initials:'SK',color:'#9d174d'},progress:100,deadline:'2025-07-30'},
+];
+
+const completedTasks = [
+  {title:'Thesis Chapter 3 on Tapeworm Host Specificity',type:'thesis',pay:3200,role:'helper',with:'Zara M.',rating:5,date:'2 days ago'},
+  {title:'Survey on Antibiotic Resistance Awareness',type:'survey',pay:400,role:'helper',with:'Sana K.',rating:5,date:'4 days ago'},
+  {title:'Presentation: Life Cycle of Schistosoma',type:'presentation',pay:1600,role:'helper',with:'Omar F.',rating:5,date:'5 days ago'},
+  {title:'MPhil Synopsis — Protozoan Parasites in KP',type:'synopsis',pay:2200,role:'helper',with:'Hamza N.',rating:5,date:'1 week ago'},
+  {title:'SPSS Data Analysis — 150 respondents',type:'data',pay:3500,role:'poster',with:'Ayesha H.',rating:5,date:'1 week ago'},
+];
+
+const statusBadge = {
+  'open':'<span class="tag tag-info">Open — Awaiting Helpers</span>',
+  'in-progress':'<span class="tag tag-warning">In Progress</span>',
+  'review':'<span class="tag tag-neutral">Under Review</span>',
+  'completed':'<span class="tag tag-success">Completed ✓</span>',
+};
+
+document.addEventListener('DOMContentLoaded',()=>{
+  // Posted tasks
+  document.getElementById('postedList').innerHTML = postedTasks.map(t=>`
+    <div class="task-status-card">
+      <div class="task-status-top">
+        <div>
+          <span class="task-type-badge ${SQ.badgeClass[t.type]}" style="margin-bottom:6px;display:inline-block;">${SQ.taskTypes[t.type]}</span>
+          <div class="task-status-title">${t.title}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:var(--font-display);font-size:1.2rem;color:var(--moss);">₨${t.pay.toLocaleString()}</div>
+          <div style="margin-top:4px;">${statusBadge[t.status]||''}</div>
+        </div>
+      </div>
+      ${t.progress>0?`<div class="task-progress-bar"><div class="task-progress-fill" style="width:${t.progress}%;background:${t.progress===100?'#16a34a':'var(--fern)'}"></div></div><div style="font-size:12px;color:#888;margin-bottom:8px;">${t.progress}% complete</div>`:''}
+      <div class="task-meta-row">
+        <span>⏳ Deadline: ${new Date(t.deadline).toLocaleDateString('en-PK',{day:'numeric',month:'short'})}</span>
+        <span>💬 ${t.helpers.length} helper${t.helpers.length!==1?'s':''}</span>
+        ${t.helpers.map(h=>`<span class="helper-chip"><div class="avatar avatar-xs" style="background:${h.color}">${h.initials}</div>${h.name}</span>`).join('')}
+      </div>
+      <div class="task-status-actions" style="margin-top:0.8rem;">
+        ${t.status==='in-progress'||t.status==='review'?`<button class="action-btn approve" onclick="openDoneModal()">✓ Mark Complete</button>`:''}
+        ${t.status==='open'?`<button class="action-btn view" onclick="showToast('Viewing applicants...')">View Applicants (${t.helpers.length})</button>`:''}
+        <button class="action-btn view" onclick="showToast('Opening task details...')">View Details</button>
+        ${t.status==='open'?`<button class="action-btn reject" onclick="if(confirm('Delete this task?')){showToast('Task deleted.','warning')}">Delete</button>`:''}
+      </div>
+    </div>
+  `).join('');
+
+  // Accepted tasks
+  document.getElementById('acceptedList').innerHTML = acceptedTasks.map(t=>`
+    <div class="task-status-card">
+      <div class="task-status-top">
+        <div>
+          <span class="task-type-badge ${SQ.badgeClass[t.type]}" style="margin-bottom:6px;display:inline-block;">${SQ.taskTypes[t.type]}</span>
+          <div class="task-status-title">${t.title}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:var(--font-display);font-size:1.2rem;color:var(--moss);">₨${t.pay.toLocaleString()}</div>
+          ${t.progress===100?'<span class="tag tag-success">Done — Awaiting Approval</span>':'<span class="tag tag-warning">In Progress</span>'}
+        </div>
+      </div>
+      <div class="task-progress-bar"><div class="task-progress-fill" style="width:${t.progress}%;background:${t.progress===100?'#16a34a':'var(--fern)'}"></div></div>
+      <div style="font-size:12px;color:#888;margin-bottom:8px;">${t.progress}% complete</div>
+      <div class="task-meta-row">
+        <span>📋 Posted by: <span class="helper-chip" style="display:inline-flex;"><div class="avatar avatar-xs" style="background:${t.poster.color}">${t.poster.initials}</div>${t.poster.name}</span></span>
+        <span>⏳ Due: ${new Date(t.deadline).toLocaleDateString('en-PK',{day:'numeric',month:'short'})}</span>
+      </div>
+      <div class="task-status-actions" style="margin-top:0.8rem;">
+        <button class="action-btn view" onclick="showToast('Opening task details...')">📋 View Task</button>
+        <button class="action-btn view" onclick="showToast('Opening messages...')">💬 Message Poster</button>
+        ${t.progress<100?`<button class="action-btn approve" onclick="showToast('Progress updated!')">Update Progress</button>`:`<button class="action-btn view" onclick="showToast('Work submitted!')">📤 Submit Work</button>`}
+      </div>
+    </div>
+  `).join('');
+
+  // Completed tasks
+  document.getElementById('completedList').innerHTML = completedTasks.map(t=>`
+    <div class="task-status-card">
+      <div class="task-status-top">
+        <div>
+          <span class="task-type-badge ${SQ.badgeClass[t.type]}">${SQ.taskTypes[t.type]}</span>
+          <span style="font-size:11px;background:#f0fdf4;color:#166534;padding:2px 8px;border-radius:10px;margin-left:6px;font-weight:600;">${t.role==='helper'?'You helped':'You posted'}</span>
+          <div class="task-status-title" style="margin-top:6px;">${t.title}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:var(--font-display);font-size:1.2rem;color:var(--moss);">₨${t.pay.toLocaleString()}</div>
+          <div class="stars" style="font-size:14px;">${'★'.repeat(t.rating)}</div>
+        </div>
+      </div>
+      <div class="task-meta-row">
+        <span>${t.role==='helper'?'👤 For:':'🔬 Done by:'} ${t.with}</span>
+        <span>🕐 ${t.date}</span>
+        <span class="tag tag-success">✓ Completed</span>
+      </div>
+      <div class="task-status-actions" style="margin-top:0.8rem;">
+        ${!t.rated&&t.role==='poster'?`<button class="action-btn approve" onclick="openRateModal('${t.with}')">⭐ Rate Helper</button>`:''}
+        <button class="action-btn view" onclick="showToast('Viewing task details...')">View Details</button>
+      </div>
+    </div>
+  `).join('');
+});
+
+function switchTab(el, id) {
+  document.querySelectorAll('.task-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+}
+
+let selectedRating = 0;
+function openRateModal(name) {
+  document.getElementById('rateHelperName').textContent = name;
+  selectedRating = 0;
+  renderStars();
+  document.getElementById('rateModal').classList.add('open');
+}
+function closeRate() { document.getElementById('rateModal').classList.remove('open'); }
+function renderStars() {
+  document.getElementById('ratingStars').innerHTML = [1,2,3,4,5].map(i=>`
+    <span class="rating-star ${i<=selectedRating?'filled':''}" onclick="setRating(${i})" onmouseover="hoverStar(${i})" onmouseout="renderStars()">★</span>
+  `).join('');
+}
+function setRating(n) { selectedRating=n; renderStars(); }
+function hoverStar(n) {
+  document.querySelectorAll('.rating-star').forEach((s,i)=>{ s.style.color = i<n?'#f59e0b':'#e5e7eb'; });
+}
+function submitRating() {
+  if(!selectedRating) { showToast('Please select a rating.','warning'); return; }
+  closeRate(); showToast('⭐ Rating submitted! Thank you.');
+}
+function openDoneModal() { document.getElementById('doneModal').classList.add('open'); }
+function confirmDone() { document.getElementById('doneModal').classList.remove('open'); showToast('✓ Task marked complete! Helper awarded +1 leaderboard point.'); openRateModal('the helper'); }
+
+[...document.querySelectorAll('.modal-overlay')].forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+</script>
+</body>
+</html>
